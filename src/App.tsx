@@ -5,14 +5,6 @@ function App() {
       <p className="text-lg text-center max-w-xl mb-6">
         Software Developer based in Tokyo. I love building elegant user experiences, solving complex problems, and drinking strong coffee.
       </p>
-      <div className="flex gap-4">
-        <a
-          href="https://github.com/yourusername"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
-        >
-      </div>
     </div>
   );
 }
