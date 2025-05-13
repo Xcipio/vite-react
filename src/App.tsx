@@ -1,19 +1,3 @@
-// src/App.tsx
-import React from "react";
-
-const projects = [
-  {
-    title: "Portfolio Website",
-    description: "A personal portfolio site built with Vite + React + Tailwind, deployed on Vercel.",
-    link: "https://playxeld.com"
-  },
-  {
-    title: "Puzzle Map Game",
-    description: "A Tokyo-themed board game with storytelling and mystery-solving mechanics.",
-    link: "#"
-  }
-];
-
 function App() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-10 text-gray-800">
