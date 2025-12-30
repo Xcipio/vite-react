@@ -1,17 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { 
-  Camera, 
   Layout, 
   PenTool, 
-  User, 
-  Github, 
-  Twitter, 
-  Mail, 
-  Plus, 
   X, 
   ChevronLeft, 
+  Plus,
   Clock, 
-  Image as ImageIcon,
   Send,
   Headphones,
   Mic,
@@ -19,11 +13,43 @@ import {
   Pause,
   Volume2,
   Sparkles,
-  ArrowRight
+  Twitter,
+  Github,
+  Mail
 } from 'lucide-react';
 
+// --- 类型定义 ---
+interface Post {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  date: string;
+  category: string;
+  color: string;
+}
+
+interface Podcast {
+  id: number;
+  title: string;
+  description: string;
+  duration: string;
+  cover: string;
+  date: string;
+  tags: string[];
+}
+
+interface NewPostState {
+  title: string;
+  category: string;
+  image: string;
+  excerpt: string;
+  content: string;
+}
+
 // --- 模拟数据：博客文章 ---
-const INITIAL_POSTS = [
+const INITIAL_POSTS: Post[] = [
   {
     id: 1,
     title: "探索城市的光影瞬间",
@@ -57,7 +83,7 @@ const INITIAL_POSTS = [
 ];
 
 // --- 模拟数据：音频播客 ---
-const INITIAL_PODCASTS = [
+const INITIAL_PODCASTS: Podcast[] = [
   {
     id: 101,
     title: "EP01. 为什么我们需要「玩」？",
@@ -88,19 +114,24 @@ const INITIAL_PODCASTS = [
 ];
 
 const App = () => {
-  const [posts, setPosts] = useState(INITIAL_POSTS);
-  const [podcasts, setPodcasts] = useState(INITIAL_PODCASTS);
-  const [view, setView] = useState('home'); // 'home', 'detail', 'create'
-  const [activeTab, setActiveTab] = useState('blog'); // 'blog', 'podcast'
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+  // Remove unused setPodcasts to fix TS6133
+  const [podcasts] = useState<Podcast[]>(INITIAL_PODCASTS);
+  
+  type ViewState = 'home' | 'detail' | 'create';
+  type TabState = 'blog' | 'podcast';
+
+  const [view, setView] = useState<ViewState>('home');
+  const [activeTab, setActiveTab] = useState<TabState>('blog');
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   // 音频播放器状态
-  const [currentTrack, setCurrentTrack] = useState(null);
+  const [currentTrack, setCurrentTrack] = useState<Podcast | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // 表单状态
-  const [newPost, setNewPost] = useState({
+  const [newPost, setNewPost] = useState<NewPostState>({
     title: '',
     category: '视觉日记',
     image: '',
@@ -109,7 +140,7 @@ const App = () => {
   });
 
   // 切换播放状态
-  const togglePlay = (track) => {
+  const togglePlay = (track: Podcast) => {
     if (currentTrack?.id === track.id) {
       setIsPlaying(!isPlaying);
     } else {
@@ -119,16 +150,16 @@ const App = () => {
   };
 
   // 切换到文章详情
-  const openDetail = (post) => {
+  const openDetail = (post: Post) => {
     setSelectedPost(post);
     setView('detail');
     window.scrollTo(0, 0);
   };
 
   // 提交新文章
-  const handlePublish = (e) => {
+  const handlePublish = (e: React.FormEvent) => {
     e.preventDefault();
-    const postToAdd = {
+    const postToAdd: Post = {
       ...newPost,
       id: Date.now(),
       date: new Date().toISOString().split('T')[0],
@@ -247,7 +278,7 @@ const App = () => {
                           src={post.image} 
                           alt={post.title} 
                           className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
-                          onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000"; }}
+                          onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000"; }}
                         />
                         <div className="absolute top-3 left-3">
                           <span className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-semibold text-black uppercase tracking-wide">
@@ -445,7 +476,7 @@ const App = () => {
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">正文</label>
                 <textarea 
                   required
-                  rows="8"
+                  rows={8}
                   placeholder="开始书写..."
                   className="w-full py-2 bg-transparent border-b border-gray-200 focus:border-[#0071E3] outline-none resize-none leading-relaxed font-light"
                   value={newPost.content}
