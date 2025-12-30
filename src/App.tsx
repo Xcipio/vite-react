@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { 
   Layout, 
-  PenTool, 
   X, 
   ChevronLeft, 
   Plus,
-  Clock, 
-  Send,
-  Headphones,
-  Mic,
   Play,
   Pause,
-  Volume2,
   Sparkles,
   Twitter,
   Github,
