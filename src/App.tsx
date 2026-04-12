@@ -51,7 +51,7 @@ function HomePage() {
 
         <div className="hero-body hero-grid">
           <div className="hero-main">
-            <p className="hero-kicker">ARTIST / ENGINEER / GAME CREATOR</p>
+            <p className="hero-kicker">WRITER / GAME CREATOR / PLAYER</p>
 
             <h1 className="hero-title">All we need is PLAY!</h1>
 
