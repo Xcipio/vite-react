@@ -333,6 +333,7 @@ a {
   margin-bottom: 12px;
   font-size: 13px;
   opacity: 0.52;
+  transform: translateY(-6px);
 }
 
 .post-title {
@@ -716,8 +717,8 @@ body[data-theme="light"] .pagination-button.active {
 
 .post-tag-badge {
   position: absolute;
-  bottom: 10px;
-  right: 15px;
+  top: 20px;
+  right: 20px;
 
   display: inline-flex;
   align-items: center;
