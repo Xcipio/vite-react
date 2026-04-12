@@ -243,6 +243,10 @@ function HomePage() {
 
                   <p className="post-excerpt">{post.excerpt}</p>
 
+                  <Link to={`/post/${post.slug}`} className="post-link">
+                    阅读全文 →
+                  </Link>
+
                   {post.tag && (
                     <span
                       className="post-tag-badge"
