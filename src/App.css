@@ -636,3 +636,129 @@ body[data-theme="light"] .hero-button-secondary {
 .posts-grid .post-card:nth-child(4n + 4) .post-title a {
   color: #2ecc71;
 }
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.pagination-button {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    color 0.18s ease;
+}
+
+.pagination-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pagination-button.active {
+  background: #ffffff;
+  color: #05070d;
+  border-color: #ffffff;
+}
+
+body[data-theme="light"] .pagination-button {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body[data-theme="light"] .pagination-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+body[data-theme="light"] .pagination-button.active {
+  background: #05070d;
+  color: #ffffff;
+  border-color: #05070d;
+}
+
+/* 间距 */
+
+#about.section {
+  margin-top: 96px;
+}
+
+#posts.section {
+  margin-top: 20px;
+}
+
+/* tag */
+
+.post-card {
+  position: relative;
+}
+
+.post-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.post-tag-badge {
+  position: absolute;
+  top: 27px;
+  right: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+
+  line-height: 1;
+  white-space: nowrap;
+}
+
+body[data-theme="light"] .post-tag-badge {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(5, 7, 13, 0.78);
+}
+
+.post-tag-badge {
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.post-tag-badge:hover {
+  transform: translateY(-1px);
+  border-color: rgba(154, 180, 255, 0.4);
+}
+
+/* 选中状态 */
+.post-tag-badge.active {
+  background: #9ab4ff;
+  color: #05070d;
+  border-color: #9ab4ff;
+}
+
+/* 提示文字 */
+.tag-filter-indicator {
+  margin-top: -10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  opacity: 0.6;
+}
