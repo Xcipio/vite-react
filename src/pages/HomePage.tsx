@@ -125,6 +125,7 @@ function HomePage() {
           <nav className="hero-nav">
             <a href="#posts">Posts</a>
             <a href="#about">About</a>
+            <a href="#contact">Contact</a>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </nav>
         </div>
@@ -223,19 +224,20 @@ function HomePage() {
 
             {totalPages > 1 && (
               <div className="pagination">
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      className={`pagination-button ${
-                        currentPage === page ? "active" : ""
-                      }`}
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1,
+                ).map((page) => (
+                  <button
+                    key={page}
+                    className={`pagination-button ${
+                      currentPage === page ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
               </div>
             )}
           </>
@@ -252,6 +254,40 @@ function HomePage() {
         <p className="section-text">
           建立这个站点的目的并非为了单纯的存档。对我而言，写作是一场公开测试，去校验那些尚不成熟的直觉；并尝试将零散的思考锻造成系统的表达，最终构建起一套完整的创作谱系
         </p>
+      </section>
+
+      <section id="contact" className="section contact-section">
+        <div className="contact-panel">
+          <div className="contact-copy">
+            <p className="section-label">CONTACT</p>
+            <h2 className="section-title contact-title">欢迎来信</h2>
+            <p className="section-text contact-text">
+              如果你想交流游戏、写作、创作故事，或者只是想分享一个有趣的想法
+            </p>
+            <p className="section-text contact-text">
+              都可以通过来邮件来联系我
+            </p>
+          </div>
+
+          <div className="contact-card">
+            <p className="contact-card-label">Email</p>
+            <a
+              className="contact-email"
+              href="mailto:playxeld@gmail.com"
+              aria-label="Send email to playxeld@gmail.com"
+            >
+              playxeld@gmail.com
+            </a>
+            <p className="contact-card-text">All we need is PLAY</p>
+            <a
+              className="contact-action"
+              href="mailto:playxeld@gmail.com"
+              aria-label="Write an email to playxeld@gmail.com"
+            >
+              ✏️ Write to me
+            </a>
+          </div>
+        </div>
       </section>
     </div>
   );
