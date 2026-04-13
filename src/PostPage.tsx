@@ -86,7 +86,7 @@ function PostPage() {
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
 
-      <h1>{post.title}</h1>
+      <h1 className="post-detail-title">{post.title}</h1>
       <p>{post.excerpt}</p>
       <small>{new Date(post.published_at).toLocaleDateString()}</small>
 

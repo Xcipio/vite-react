@@ -142,7 +142,7 @@ function HomePage() {
                 <span className="a">A</span>
                 <span className="y">Y</span>
               </span>{" "}
-              !
+              <span className="hero-exclamation">!</span>
             </h1>
 
             <p className="hero-subtitle">

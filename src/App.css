@@ -143,6 +143,10 @@ a {
   letter-spacing: 0.01em;
 }
 
+.hero-exclamation {
+  color: #f8d3df;
+}
+
 .hero-actions {
   display: flex;
   gap: 16px;
