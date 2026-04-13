@@ -590,6 +590,55 @@ a {
   white-space: pre-wrap;
 }
 
+.comment-actions {
+  margin-top: 14px;
+}
+
+.comment-reply-button,
+.comment-reply-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9cb6de;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.comment-reply-button:hover,
+.comment-reply-cancel:hover {
+  color: #c7d8f2;
+}
+
+.comment-replies {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding-left: 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comment-replies-root {
+  padding-left: 22px;
+}
+
+.comment-replies-nested {
+  padding-left: 14px;
+}
+
+.comment-reply-card {
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .comment-form {
   padding: 24px;
   border-radius: 24px;
@@ -621,6 +670,23 @@ a {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
+}
+
+.comment-replying {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.comment-replying-text {
+  font-size: 14px;
+  color: rgba(245, 247, 251, 0.76);
 }
 
 .comment-field-label {
@@ -1049,6 +1115,25 @@ body[data-theme="light"] .comment-content {
   color: rgba(5, 7, 13, 0.82);
 }
 
+body[data-theme="light"] .comment-reply-button,
+body[data-theme="light"] .comment-reply-cancel {
+  color: #6f87ac;
+}
+
+body[data-theme="light"] .comment-reply-button:hover,
+body[data-theme="light"] .comment-reply-cancel:hover {
+  color: #48648e;
+}
+
+body[data-theme="light"] .comment-replies {
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .comment-reply-card {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.02);
+}
+
 body[data-theme="light"] .comment-form {
   border: 1px solid rgba(0, 0, 0, 0.08);
   background:
@@ -1093,6 +1178,15 @@ body[data-theme="light"] .comment-submit:hover:not(:disabled) {
 
 body[data-theme="light"] .comment-feedback {
   color: rgba(5, 7, 13, 0.68);
+}
+
+body[data-theme="light"] .comment-replying {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body[data-theme="light"] .comment-replying-text {
+  color: rgba(5, 7, 13, 0.72);
 }
 
 /* PLAY 彩色字母 */

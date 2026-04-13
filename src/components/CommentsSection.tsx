@@ -6,20 +6,81 @@ type CommentsSectionProps = {
   postSlug: string;
 };
 
+type CommentNode = Comment & {
+  replies: CommentNode[];
+};
+
 const COMMENT_SUBMIT_COOLDOWN_MS = 30_000;
 const MIN_COMMENT_FILL_TIME_MS = 2_500;
 const COMMENT_COOLDOWN_KEY = "comment-submit-last-at";
 
+function buildCommentTree(comments: Comment[], parentId: number | null = null): CommentNode[] {
+  return comments
+    .filter((comment) => comment.parent_id === parentId)
+    .map((comment) => ({
+      ...comment,
+      replies: buildCommentTree(comments, comment.id),
+    }));
+}
+
+function CommentItem({
+  comment,
+  depth,
+  onReply,
+}: {
+  comment: CommentNode;
+  depth: number;
+  onReply: (comment: Comment) => void;
+}) {
+  const nestingLevel = depth > 1 ? "comment-replies-nested" : "comment-replies-root";
+
+  return (
+    <article className={depth === 0 ? "comment-card" : "comment-reply-card"}>
+      <div className="comment-meta">
+        <strong className="comment-author">{comment.author_name}</strong>
+        <span className="comment-date">
+          {new Date(comment.created_at).toLocaleDateString()}
+        </span>
+      </div>
+
+      <p className="comment-content">{comment.content}</p>
+
+      <div className="comment-actions">
+        <button
+          className="comment-reply-button"
+          type="button"
+          onClick={() => onReply(comment)}
+        >
+          Reply
+        </button>
+      </div>
+
+      {comment.replies.length > 0 && (
+        <div className={`comment-replies ${nestingLevel}`}>
+          {comment.replies.map((reply) => (
+            <CommentItem
+              key={reply.id}
+              comment={reply}
+              depth={Math.min(depth + 1, 2)}
+              onReply={onReply}
+            />
+          ))}
+        </div>
+      )}
+    </article>
+  );
+}
+
 function CommentsSection({ postSlug }: CommentsSectionProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<CommentNode[]>([]);
   const [authorName, setAuthorName] = useState("");
-  const [authorEmail, setAuthorEmail] = useState("");
   const [content, setContent] = useState("");
   const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [replyTarget, setReplyTarget] = useState<Comment | null>(null);
   const [formMountedAt] = useState(() => Date.now());
 
   useEffect(() => {
@@ -30,7 +91,7 @@ function CommentsSection({ postSlug }: CommentsSectionProps) {
         console.error("Failed to fetch comments:", error);
         setErrorMessage("评论暂时无法加载。");
       } else {
-        setComments(data ?? []);
+        setComments(buildCommentTree(data ?? []));
       }
 
       setLoading(false);
@@ -77,8 +138,8 @@ function CommentsSection({ postSlug }: CommentsSectionProps) {
     const { error } = await createComment({
       post_slug: postSlug,
       author_name: authorName.trim(),
-      author_email: authorEmail.trim() || null,
       content: content.trim(),
+      parent_id: replyTarget?.id ?? null,
     });
 
     if (error) {
@@ -89,19 +150,28 @@ function CommentsSection({ postSlug }: CommentsSectionProps) {
     }
 
     setAuthorName("");
-    setAuthorEmail("");
     setContent("");
     setWebsite("");
+    setReplyTarget(null);
     window.localStorage.setItem(COMMENT_COOLDOWN_KEY, String(Date.now()));
-    setFeedback("留言已发布。");
+    setFeedback(replyTarget ? "回复已发布。" : "留言已发布。");
     setSubmitting(false);
+
+    const { data, error: refreshError } = await fetchApprovedComments(postSlug);
+
+    if (refreshError) {
+      console.error("Failed to refresh comments:", refreshError);
+      return;
+    }
+
+    setComments(buildCommentTree(data ?? []));
   };
 
   return (
     <section className="comments-section">
       <div className="comments-header">
         <p className="section-label">THOUGHTS</p>
-        <h2 className="section-title comments-title">留一句话吧</h2>
+        <h2 className="section-title comments-title">评论区</h2>
         <p className="section-text comments-intro">
           如果这篇文章让你想起了什么，欢迎留下几句话。
         </p>
@@ -119,15 +189,15 @@ function CommentsSection({ postSlug }: CommentsSectionProps) {
             </p>
           ) : (
             comments.map((comment) => (
-              <article key={comment.id} className="comment-card">
-                <div className="comment-meta">
-                  <strong className="comment-author">{comment.author_name}</strong>
-                  <span className="comment-date">
-                    {new Date(comment.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="comment-content">{comment.content}</p>
-              </article>
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                depth={0}
+                onReply={(targetComment) => {
+                  setReplyTarget(targetComment);
+                  setFeedback(null);
+                }}
+              />
             ))
           )}
         </div>
@@ -146,6 +216,21 @@ function CommentsSection({ postSlug }: CommentsSectionProps) {
             />
           </label>
 
+          {replyTarget && (
+            <div className="comment-replying">
+              <span className="comment-replying-text">
+                回复给 {replyTarget.author_name}
+              </span>
+              <button
+                className="comment-reply-cancel"
+                type="button"
+                onClick={() => setReplyTarget(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+
           <div className="comment-form-grid">
             <label className="comment-field">
               <span className="comment-field-label">Name</span>
@@ -161,20 +246,26 @@ function CommentsSection({ postSlug }: CommentsSectionProps) {
           </div>
 
           <label className="comment-field">
-            <span className="comment-field-label">Comment</span>
+            <span className="comment-field-label">
+              {replyTarget ? "Reply" : "Comment"}
+            </span>
             <textarea
               className="comment-textarea"
               maxLength={1000}
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="写下你的想法..."
+              placeholder={replyTarget ? "写下你的回复..." : "写下你的想法..."}
               rows={6}
             />
           </label>
 
           <div className="comment-form-footer">
             <button className="comment-submit" type="submit" disabled={submitting}>
-              {submitting ? "Sending..." : "Write to me"}
+              {submitting
+                ? "Sending..."
+                : replyTarget
+                  ? "Post reply"
+                  : "写评论"}
             </button>
             {feedback && <p className="comment-feedback">{feedback}</p>}
           </div>

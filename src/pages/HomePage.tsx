@@ -262,10 +262,7 @@ function HomePage() {
             <p className="section-label">CONTACT</p>
             <h2 className="section-title contact-title">欢迎来信</h2>
             <p className="section-text contact-text">
-              如果你想交流游戏、写作、创作故事，或者只是想分享一个有趣的想法
-            </p>
-            <p className="section-text contact-text">
-              都可以通过来邮件来联系我
+              如果你想交流游戏、写作、创作故事，或者只是想分享一个有趣的想法，都欢迎通过评论或者邮件来进行交流
             </p>
           </div>
 
