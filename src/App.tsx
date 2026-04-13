@@ -105,7 +105,7 @@ function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  const postsPerPage = 5;
+  const postsPerPage = 6;
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") || "dark";
