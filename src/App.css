@@ -770,6 +770,23 @@ a {
   margin-top: 20px;
 }
 
+.tag-page-grid .post-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    margin-top 0.2s ease;
+}
+
+.tag-page-grid .post-card:nth-child(2n) {
+  margin-top: 34px;
+}
+
+.tag-page-grid .post-card:nth-child(4n + 3) {
+  margin-top: 14px;
+}
+
 .tag-page-grid .post-card:nth-child(4n + 1) .post-title,
 .tag-page-grid .post-card:nth-child(4n + 1) .post-title a {
   color: #c8909d;
@@ -1414,6 +1431,11 @@ a {
   .post-card,
   .post-card-featured {
     grid-column: span 12;
+  }
+
+  .tag-page-grid .post-card:nth-child(2n),
+  .tag-page-grid .post-card:nth-child(4n + 3) {
+    margin-top: 0;
   }
 
   .comments-shell {
