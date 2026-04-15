@@ -48,6 +48,22 @@ const tagColorMap: Record<
     lightBorder: "rgba(46, 204, 113, 0.28)",
     lightColor: "#209a53",
   },
+  哲学透镜: {
+    background: "rgba(168, 85, 247, 0.16)",
+    border: "rgba(168, 85, 247, 0.36)",
+    color: "#c084fc",
+    lightBackground: "rgba(168, 85, 247, 0.1)",
+    lightBorder: "rgba(168, 85, 247, 0.26)",
+    lightColor: "#8b5cf6",
+  },
+  永恒之城: {
+    background: "rgba(49, 46, 129, 0.18)",
+    border: "rgba(99, 102, 241, 0.34)",
+    color: "#818cf8",
+    lightBackground: "rgba(79, 70, 229, 0.1)",
+    lightBorder: "rgba(79, 70, 229, 0.22)",
+    lightColor: "#3730a3",
+  },
 };
 
 function getTagStyle(tag: string, theme: "dark" | "light") {
@@ -80,6 +96,10 @@ function getTagStyle(tag: string, theme: "dark" | "light") {
       };
 }
 
+function getPostTags(post: Post) {
+  return [post.tag, post.tag_2].filter((tag): tag is string => Boolean(tag));
+}
+
 function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +108,7 @@ function HomePage() {
   const { theme, toggleTheme } = useTheme();
 
   const postsPerPage = 6;
+  const tagOrder = Object.keys(tagColorMap);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -105,9 +126,31 @@ function HomePage() {
     loadPosts();
   }, []);
 
+  const latestPost = posts[0] ?? null;
+  const remainingPosts = latestPost ? posts.slice(1) : posts;
   const filteredPosts = selectedTag
-    ? posts.filter((post) => post.tag === selectedTag)
-    : posts;
+    ? remainingPosts.filter((post) => getPostTags(post).includes(selectedTag))
+    : remainingPosts;
+  const availableTags = [
+    ...new Set(posts.flatMap((post) => getPostTags(post))),
+  ].sort((left, right) => {
+    const leftIndex = tagOrder.indexOf(left);
+    const rightIndex = tagOrder.indexOf(right);
+
+    if (leftIndex === -1 && rightIndex === -1) {
+      return left.localeCompare(right, "zh-CN");
+    }
+
+    if (leftIndex === -1) {
+      return 1;
+    }
+
+    if (rightIndex === -1) {
+      return -1;
+    }
+
+    return leftIndex - rightIndex;
+  });
 
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
   const startIndex = (currentPage - 1) * postsPerPage;
@@ -156,7 +199,15 @@ function HomePage() {
 
           <aside className="hero-side">
             <p className="hero-side-label">Now</p>
-            <h2 className="hero-side-title">个人博客 👉 微型发布系统</h2>
+            <h2 className="hero-side-title">
+              <span className="hero-title-gradient">文学迷城</span>
+              <span className="hero-title-rest"> 系列更新中 </span>
+              <span className="hero-title-dots" aria-hidden="true">
+                <span className="hero-title-dot hero-title-dot-one">.</span>
+                <span className="hero-title-dot hero-title-dot-two">.</span>
+                <span className="hero-title-dot hero-title-dot-three">.</span>
+              </span>
+            </h2>
             <p className="hero-side-text">📚 🎬 🎷 🎴 🏙️ 💡 → 🤹 🎮</p>
             <p className="hero-side-text">
               我正在尝试把深度随笔、实验笔记与“可游玩”的思维模型结合
@@ -164,13 +215,111 @@ function HomePage() {
             <p className="hero-side-text">
               让思考不再只是静态的阅读，而是变成像玩游戏一样可以交互的思维练习
             </p>
+
+            <div className="hero-side-card">
+              <p className="hero-side-card-label hero-side-card-title">どこでもドア</p>
+              <p className="hero-side-card-text">
+                点击标签，查看该专题所有文章👇
+              </p>
+              <div className="hero-tag-grid">
+                {availableTags.map((tag) => (
+                  <button
+                    key={tag}
+                    className={`hero-tag-button ${
+                      selectedTag === tag ? "active" : ""
+                    }`}
+                    style={getTagStyle(tag, theme)}
+                    onClick={() => {
+                      setSelectedTag(tag);
+                      setCurrentPage(1);
+                      window.location.hash = "posts";
+                    }}
+                    type="button"
+                  >
+                    {tag}
+                  </button>
+                ))}
+
+                {selectedTag && (
+                  <button
+                    className="hero-tag-button hero-tag-button-clear"
+                    onClick={() => {
+                      setSelectedTag(null);
+                      setCurrentPage(1);
+                      window.location.hash = "posts";
+                    }}
+                    type="button"
+                  >
+                    查看全部
+                  </button>
+                )}
+              </div>
+            </div>
           </aside>
         </div>
       </header>
 
-      <section id="posts" className="section">
+      <section className="section latest-release-section">
         <div className="section-header">
-          <h2 className="section-title">Recent writing</h2>
+          <h2 className="section-title latest-release-section-title">最新文章</h2>
+          {latestPost && (
+            <div className="section-meta">
+              {new Date(latestPost.published_at).toLocaleDateString()}
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <p>Loading...</p>
+        ) : latestPost ? (
+          <article className="latest-release-card">
+            <div className="latest-release-copy">
+              <p className="latest-release-label">Editor’s Pick</p>
+              <h3 className="latest-release-title">
+                <Link to={`/post/${latestPost.slug}`}>{latestPost.title}</Link>
+              </h3>
+              <p className="latest-release-excerpt">{latestPost.excerpt}</p>
+
+              <div className="latest-release-actions">
+                <Link
+                  to={`/post/${latestPost.slug}`}
+                  className="post-link latest-release-link"
+                >
+                  阅读全文 →
+                </Link>
+              </div>
+            </div>
+
+            {getPostTags(latestPost).length > 0 && (
+              <div className="latest-release-tags">
+                {getPostTags(latestPost).map((tag) => (
+                  <button
+                    key={`latest-${latestPost.id}-${tag}`}
+                    className={`hero-tag-button ${
+                      selectedTag === tag ? "active" : ""
+                    }`}
+                    style={getTagStyle(tag, theme)}
+                    onClick={() => {
+                      setSelectedTag(tag);
+                      setCurrentPage(1);
+                      window.location.hash = "posts";
+                    }}
+                    type="button"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
+          </article>
+        ) : (
+          <p>还没有已发布文章。</p>
+        )}
+      </section>
+
+      <section id="posts" className="section posts-section">
+        <div className="section-header">
+          <h2 className="section-title posts-section-title">Recent writing</h2>
           <div className="section-meta">{filteredPosts.length} posts</div>
         </div>
 
@@ -183,14 +332,10 @@ function HomePage() {
         ) : (
           <>
             <div className="posts-grid">
-              {currentPosts.map((post, index) => (
+              {currentPosts.map((post) => (
                 <article
                   key={post.id}
-                  className={
-                    currentPage === 1 && index === 0
-                      ? "post-card post-card-featured"
-                      : "post-card"
-                  }
+                  className="post-card"
                 >
                   <div className="post-meta">
                     {new Date(post.published_at).toLocaleDateString()}
@@ -206,20 +351,26 @@ function HomePage() {
                     阅读全文 →
                   </Link>
 
-                  {post.tag && (
-                    <span
-                      className="post-tag-badge"
-                      style={getTagStyle(post.tag, theme)}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        const nextTag =
-                          selectedTag === post.tag ? null : post.tag;
-                        setSelectedTag(nextTag);
-                        setCurrentPage(1);
-                      }}
-                    >
-                      {post.tag}
-                    </span>
+                  {getPostTags(post).length > 0 && (
+                    <div className="post-tag-list">
+                      {getPostTags(post).map((tag) => (
+                        <span
+                          key={`${post.id}-${tag}`}
+                          className={`post-tag-badge ${
+                            selectedTag === tag ? "active" : ""
+                          }`}
+                          style={getTagStyle(tag, theme)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            const nextTag = selectedTag === tag ? null : tag;
+                            setSelectedTag(nextTag);
+                            setCurrentPage(1);
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </article>
               ))}
@@ -249,7 +400,7 @@ function HomePage() {
 
       <section id="about" className="section">
         <p className="section-label">ABOUT</p>
-        <h2 className="section-title">初衷</h2>
+        <h2 className="section-title about-section-title">初衷</h2>
         <p className="section-text">
           我在这里记录随笔、笔记与思想碎片。从设计的逻辑到博弈的本质，从光影的隐喻到城市的肌理——凡是能启发思考、磨练感知的事物，皆是我的坐标
         </p>
@@ -263,7 +414,7 @@ function HomePage() {
         <div className="contact-panel">
           <div className="contact-copy">
             <p className="section-label">CONTACT</p>
-            <h2 className="section-title contact-title">欢迎来信</h2>
+            <h2 className="section-title contact-title contact-section-title">欢迎来信</h2>
             <p className="section-text contact-text">
               如果你想交流游戏、写作、创作故事，或者只是想分享一个有趣的想法，都欢迎通过评论或者邮件来进行交流
             </p>

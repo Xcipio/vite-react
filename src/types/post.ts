@@ -7,4 +7,5 @@ export type Post = {
   published_at: string;
   is_published: boolean;
   tag: string | null;
+  tag_2: string | null;
 };
