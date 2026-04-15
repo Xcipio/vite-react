@@ -1,104 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "../hooks/useTheme";
 import { fetchPublishedPosts } from "../lib/posts";
+import { getPostTags, getTagStyle, sortTags } from "../lib/tags";
 import { Post } from "../types/post";
-
-const tagColorMap: Record<
-  string,
-  {
-    background: string;
-    border: string;
-    color: string;
-    lightBackground: string;
-    lightBorder: string;
-    lightColor: string;
-  }
-> = {
-  随笔: {
-    background: "rgba(255, 140, 66, 0.14)",
-    border: "rgba(255, 140, 66, 0.34)",
-    color: "#ff8c42",
-    lightBackground: "rgba(255, 140, 66, 0.1)",
-    lightBorder: "rgba(255, 140, 66, 0.28)",
-    lightColor: "#d96a20",
-  },
-  思维模型: {
-    background: "rgba(78, 168, 255, 0.14)",
-    border: "rgba(78, 168, 255, 0.34)",
-    color: "#4ea8ff",
-    lightBackground: "rgba(78, 168, 255, 0.1)",
-    lightBorder: "rgba(78, 168, 255, 0.28)",
-    lightColor: "#1f7fe0",
-  },
-  文心雕侬: {
-    background: "rgba(255, 77, 79, 0.14)",
-    border: "rgba(255, 77, 79, 0.34)",
-    color: "#ff4d4f",
-    lightBackground: "rgba(255, 77, 79, 0.1)",
-    lightBorder: "rgba(255, 77, 79, 0.28)",
-    lightColor: "#d9363e",
-  },
-  卡片: {
-    background: "rgba(46, 204, 113, 0.14)",
-    border: "rgba(46, 204, 113, 0.34)",
-    color: "#2ecc71",
-    lightBackground: "rgba(46, 204, 113, 0.1)",
-    lightBorder: "rgba(46, 204, 113, 0.28)",
-    lightColor: "#209a53",
-  },
-  哲学透镜: {
-    background: "rgba(168, 85, 247, 0.16)",
-    border: "rgba(168, 85, 247, 0.36)",
-    color: "#c084fc",
-    lightBackground: "rgba(168, 85, 247, 0.1)",
-    lightBorder: "rgba(168, 85, 247, 0.26)",
-    lightColor: "#8b5cf6",
-  },
-  永恒之城: {
-    background: "rgba(49, 46, 129, 0.18)",
-    border: "rgba(99, 102, 241, 0.34)",
-    color: "#818cf8",
-    lightBackground: "rgba(79, 70, 229, 0.1)",
-    lightBorder: "rgba(79, 70, 229, 0.22)",
-    lightColor: "#3730a3",
-  },
-};
-
-function getTagStyle(tag: string, theme: "dark" | "light") {
-  const preset = tagColorMap[tag];
-
-  if (!preset) {
-    return theme === "light"
-      ? {
-          background: "rgba(0,0,0,0.05)",
-          border: "1px solid rgba(0,0,0,0.1)",
-          color: "rgba(5,7,13,0.7)",
-        }
-      : {
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          color: "rgba(245,247,251,0.85)",
-        };
-  }
-
-  return theme === "light"
-    ? {
-        background: preset.lightBackground,
-        border: `1px solid ${preset.lightBorder}`,
-        color: preset.lightColor,
-      }
-    : {
-        background: preset.background,
-        border: `1px solid ${preset.border}`,
-        color: preset.color,
-      };
-}
-
-function getPostTags(post: Post) {
-  return [post.tag, post.tag_2].filter((tag): tag is string => Boolean(tag));
-}
 
 function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -106,9 +12,10 @@ function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
   const postsPerPage = 6;
-  const tagOrder = Object.keys(tagColorMap);
+  const heroLeadText = "All we need is";
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -131,26 +38,9 @@ function HomePage() {
   const filteredPosts = selectedTag
     ? remainingPosts.filter((post) => getPostTags(post).includes(selectedTag))
     : remainingPosts;
-  const availableTags = [
+  const availableTags = sortTags([
     ...new Set(posts.flatMap((post) => getPostTags(post))),
-  ].sort((left, right) => {
-    const leftIndex = tagOrder.indexOf(left);
-    const rightIndex = tagOrder.indexOf(right);
-
-    if (leftIndex === -1 && rightIndex === -1) {
-      return left.localeCompare(right, "zh-CN");
-    }
-
-    if (leftIndex === -1) {
-      return 1;
-    }
-
-    if (rightIndex === -1) {
-      return -1;
-    }
-
-    return leftIndex - rightIndex;
-  });
+  ]);
 
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
   const startIndex = (currentPage - 1) * postsPerPage;
@@ -163,7 +53,13 @@ function HomePage() {
     <div className="page">
       <header className="hero">
         <div className="hero-top">
-          <div className="hero-brand">Playxeld</div>
+          <div className="hero-brand" aria-label="Playxeld">
+            {"PLAYXELD".split("").map((letter, index) => (
+              <span key={`${letter}-${index}`} className="hero-brand-letter">
+                {letter}
+              </span>
+            ))}
+          </div>
 
           <nav className="hero-nav">
             <a href="#posts">Posts</a>
@@ -178,14 +74,28 @@ function HomePage() {
             <p className="hero-kicker">WRITER / GAME CREATOR / PLAYER</p>
 
             <h1 className="hero-title">
-              All we need is{" "}
-              <span className="play-word">
-                <span className="p">P</span>
-                <span className="l">L</span>
-                <span className="a">A</span>
-                <span className="y">Y</span>
+              <span className="hero-title-wave" aria-label={heroLeadText}>
+                {heroLeadText.split("").map((character, index) => (
+                  <span
+                    key={`${character}-${index}`}
+                    className={
+                      character === " "
+                        ? "hero-title-wave-space"
+                        : "hero-title-wave-letter"
+                    }
+                    aria-hidden="true"
+                  >
+                    {character === " " ? "\u00A0" : character}
+                  </span>
+                ))}
               </span>{" "}
-              <span className="hero-exclamation">!</span>
+              <span className="play-word" aria-label="PLAY">
+                <span className="p play-letter">P</span>
+                <span className="l play-letter">L</span>
+                <span className="a play-letter">A</span>
+                <span className="y play-letter">Y</span>
+              </span>{" "}
+              <span className="hero-exclamation play-letter play-letter-exclamation">!</span>
             </h1>
 
             <p className="hero-subtitle">
@@ -230,9 +140,7 @@ function HomePage() {
                     }`}
                     style={getTagStyle(tag, theme)}
                     onClick={() => {
-                      setSelectedTag(tag);
-                      setCurrentPage(1);
-                      window.location.hash = "posts";
+                      navigate(`/tag/${encodeURIComponent(tag)}`);
                     }}
                     type="button"
                   >
