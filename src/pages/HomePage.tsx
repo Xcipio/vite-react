@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "../hooks/useTheme";
+import { fetchPublishedArtworks } from "../lib/artworks";
 import { fetchPublishedPosts } from "../lib/posts";
 import { getPostTags, getTagStyle, sortTags } from "../lib/tags";
+import { Artwork } from "../types/artwork";
 import { Post } from "../types/post";
 
 function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -18,22 +21,30 @@ function HomePage() {
   const heroLeadText = "All we need is";
 
   useEffect(() => {
-    const loadPosts = async () => {
-      const { data, error } = await fetchPublishedPosts();
+    const loadHomeData = async () => {
+      const [{ data: postData, error: postError }, { data: artworkData, error: artworkError }] =
+        await Promise.all([fetchPublishedPosts(), fetchPublishedArtworks()]);
 
-      if (error) {
-        console.error(error);
+      if (postError) {
+        console.error(postError);
       } else {
-        setPosts(data ?? []);
+        setPosts(postData ?? []);
+      }
+
+      if (artworkError) {
+        console.error(artworkError);
+      } else {
+        setArtworks(artworkData ?? []);
       }
 
       setLoading(false);
     };
 
-    loadPosts();
+    loadHomeData();
   }, []);
 
   const latestPost = posts[0] ?? null;
+  const pinnedArtworks = artworks.slice(0, 3);
   const remainingPosts = latestPost ? posts.slice(1) : posts;
   const filteredPosts = selectedTag
     ? remainingPosts.filter((post) => getPostTags(post).includes(selectedTag))
@@ -41,6 +52,7 @@ function HomePage() {
   const availableTags = sortTags([
     ...new Set(posts.flatMap((post) => getPostTags(post))),
   ]);
+  const portalTags = [...new Set([...availableTags, "涂鸦"])];
 
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
   const startIndex = (currentPage - 1) * postsPerPage;
@@ -63,6 +75,7 @@ function HomePage() {
 
           <nav className="hero-nav">
             <a href="#posts">Posts</a>
+            <Link to="/art">Arts</Link>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
@@ -132,12 +145,12 @@ function HomePage() {
             </p>
 
             <div className="hero-side-card">
-              <p className="hero-side-card-label hero-side-card-title">どこでもドア</p>
+              <p className="hero-side-card-label hero-side-card-title">任意门</p>
               <p className="hero-side-card-text">
                 点击标签，查看该专题所有文章👇
               </p>
               <div className="hero-tag-grid">
-                {availableTags.map((tag) => (
+                {portalTags.map((tag) => (
                   <button
                     key={tag}
                     className={`hero-tag-button ${
@@ -145,7 +158,11 @@ function HomePage() {
                     }`}
                     style={getTagStyle(tag, theme)}
                     onClick={() => {
-                      navigate(`/tag/${encodeURIComponent(tag)}`);
+                      navigate(
+                        tag === "涂鸦"
+                          ? `/art/tag/${encodeURIComponent(tag)}`
+                          : `/tag/${encodeURIComponent(tag)}`,
+                      );
                     }}
                     type="button"
                   >
@@ -174,12 +191,14 @@ function HomePage() {
 
       <section className="section latest-release-section">
         <div className="section-header">
-          <h2 className="section-title latest-release-section-title">最新文章</h2>
-          {latestPost && (
-            <div className="section-meta">
-              {new Date(latestPost.published_at).toLocaleDateString()}
-            </div>
-          )}
+          <div className="latest-release-heading">
+            <h2 className="section-title latest-release-section-title">最新文章</h2>
+            {latestPost && (
+              <div className="section-meta latest-release-date-badge">
+                {new Date(latestPost.published_at).toLocaleDateString()}
+              </div>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -229,6 +248,52 @@ function HomePage() {
           <p>还没有已发布文章。</p>
         )}
       </section>
+
+      {pinnedArtworks.length > 0 && (
+        <section className="section home-art-section">
+          <div className="section-header">
+            <h2 className="section-title home-art-section-title">画廊</h2>
+            <div className="section-meta">
+              <Link to="/art">进入 Arts →</Link>
+            </div>
+          </div>
+
+          <div className="art-grid">
+            {pinnedArtworks.map((artwork) => (
+              <article key={artwork.id} className="art-card">
+                <Link to={`/art/${artwork.slug}`} className="art-card-image-link">
+                  <img
+                    className="art-card-image"
+                    src={artwork.cover_image_url}
+                    alt={artwork.title}
+                    loading="lazy"
+                  />
+                </Link>
+
+                <div className="art-card-body">
+                  <div className="art-card-meta">
+                    {artwork.year && <span>{artwork.year}</span>}
+                    {artwork.medium && <span>{artwork.medium}</span>}
+                    {artwork.series && <span>{artwork.series}</span>}
+                  </div>
+
+                  <h2 className="art-card-title">
+                    <Link to={`/art/${artwork.slug}`}>{artwork.title}</Link>
+                  </h2>
+
+                  {artwork.subtitle && (
+                    <p className="art-card-subtitle">{artwork.subtitle}</p>
+                  )}
+
+                  <Link to={`/art/${artwork.slug}`} className="post-link art-card-link">
+                    查看作品 →
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section id="posts" className="section posts-section">
         <div className="section-header">

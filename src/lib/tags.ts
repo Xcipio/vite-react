@@ -1,4 +1,5 @@
 import { Post } from "../types/post";
+import { Artwork } from "../types/artwork";
 
 export const tagColorMap: Record<
   string,
@@ -59,6 +60,14 @@ export const tagColorMap: Record<
     lightBorder: "rgba(79, 70, 229, 0.22)",
     lightColor: "#3730a3",
   },
+  涂鸦: {
+    background: "rgba(250, 204, 21, 0.16)",
+    border: "rgba(250, 204, 21, 0.38)",
+    color: "#facc15",
+    lightBackground: "rgba(250, 204, 21, 0.12)",
+    lightBorder: "rgba(234, 179, 8, 0.28)",
+    lightColor: "#b45309",
+  },
 };
 
 export function getTagStyle(tag: string, theme: "dark" | "light") {
@@ -93,6 +102,12 @@ export function getTagStyle(tag: string, theme: "dark" | "light") {
 
 export function getPostTags(post: Post) {
   return [post.tag, post.tag_2].filter((tag): tag is string => Boolean(tag));
+}
+
+export function getArtworkTags(artwork: Artwork) {
+  return [artwork.tag, artwork.tag_2].filter(
+    (tag): tag is string => Boolean(tag),
+  );
 }
 
 export function sortTags(tags: string[]) {
