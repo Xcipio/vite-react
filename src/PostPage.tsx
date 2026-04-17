@@ -336,11 +336,6 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
               >
                 <span>{hasLikedPost ? uiText.likedAction : uiText.likeAction}</span>
                 <span aria-hidden="true">❤</span>
-                {likeCount !== null && (
-                  <span className="post-like-count" aria-hidden="true">
-                    {likeCount}
-                  </span>
-                )}
               </button>
 
               <button
