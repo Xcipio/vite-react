@@ -8,4 +8,6 @@ export type Post = {
   is_published: boolean;
   tag: string | null;
   tag_2: string | null;
+  language: "zh" | "en";
+  translation_group: string | null;
 };

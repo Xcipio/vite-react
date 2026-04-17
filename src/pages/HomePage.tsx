@@ -80,6 +80,7 @@ function HomePage() {
             <Link to="/art">Arts</Link>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
+            <Link to="/en">EN</Link>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </nav>
         </div>

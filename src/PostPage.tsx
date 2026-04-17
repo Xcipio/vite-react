@@ -3,20 +3,37 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import CommentsSection from "./components/CommentsSection";
 import ThemeToggle from "./components/ThemeToggle";
 import { useTheme } from "./hooks/useTheme";
-import { fetchPublishedPostBySlug } from "./lib/posts";
+import {
+  fetchPublishedPostBySlug,
+  fetchPublishedPostTranslation,
+} from "./lib/posts";
 import { getPostTags, getTagStyle } from "./lib/tags";
 import { Post } from "./types/post";
 
 const PostContent = lazy(() => import("./components/PostContent"));
 const READ_COMPLETE_STORAGE_KEY = "post-read-complete";
 
-function PostPage() {
+function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
   const { slug } = useParams();
   const [post, setPost] = useState<Post | null>(null);
+  const [alternatePost, setAlternatePost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasCompletedReading, setHasCompletedReading] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
+  const isEnglish = language === "en";
+  const uiText = {
+    loading: isEnglish ? "Loading..." : "Loading...",
+    notFound: isEnglish ? "Post not found." : "文章不存在。",
+    backHome: isEnglish ? "← Back to home" : "← 返回首页",
+    shareOpened: isEnglish ? "Share sheet opened" : "已调起分享",
+    copied: isEnglish ? "Link copied" : "链接已复制",
+    shareFailed: isEnglish ? "Unable to share right now" : "暂时无法分享",
+    loadingContent: isEnglish ? "Loading content..." : "内容加载中...",
+    readDone: isEnglish ? "Marked as read" : "已读完",
+    readAction: isEnglish ? "Mark as read" : "读完了",
+    shareArticle: isEnglish ? "Share article" : "分享文章",
+  };
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -25,19 +42,35 @@ function PostPage() {
         return;
       }
 
-      const { data, error } = await fetchPublishedPostBySlug(slug);
+      setAlternatePost(null);
+
+      const { data, error } = await fetchPublishedPostBySlug(slug, language);
 
       if (error) {
         console.error("Failed to fetch post:", error);
       } else {
         setPost(data);
+
+        if (data?.translation_group) {
+          const targetLanguage = language === "zh" ? "en" : "zh";
+          const { data: translationData, error: translationError } =
+            await fetchPublishedPostTranslation(data.translation_group, targetLanguage);
+
+          if (translationError) {
+            console.error("Failed to fetch translated post:", translationError);
+          } else {
+            setAlternatePost(translationData ?? null);
+          }
+        } else {
+          setAlternatePost(null);
+        }
       }
 
       setLoading(false);
     };
 
     fetchPost();
-  }, [slug]);
+  }, [slug, language]);
 
   useEffect(() => {
     if (!slug) {
@@ -55,6 +88,7 @@ function PostPage() {
       <div className="page post-page">
         <section className="section post-page-section">
           <p>Loading...</p>
+          <p>{uiText.loading}</p>
         </section>
       </div>
     );
@@ -66,12 +100,12 @@ function PostPage() {
         <section className="section post-page-section">
           <div className="tag-page-topbar">
             <p className="tag-page-back">
-              <Link to="/">← Back to home</Link>
+              <Link to={isEnglish ? "/en" : "/"}>{uiText.backHome}</Link>
             </p>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
 
-          <p>Post not found.</p>
+          <p>{uiText.notFound}</p>
         </section>
       </div>
     );
@@ -92,7 +126,10 @@ function PostPage() {
   };
 
   const handleShareArticle = async () => {
-    const shareUrl = `${window.location.origin}/post/${post.slug}`;
+    const shareUrl =
+      language === "en"
+        ? `${window.location.origin}/en/post/${post.slug}`
+        : `${window.location.origin}/post/${post.slug}`;
 
     try {
       if (navigator.share) {
@@ -101,12 +138,12 @@ function PostPage() {
           text: post.excerpt ?? post.title,
           url: shareUrl,
         });
-        setShareFeedback("已调起分享");
+        setShareFeedback(uiText.shareOpened);
         return;
       }
 
       await navigator.clipboard.writeText(shareUrl);
-      setShareFeedback("链接已复制");
+      setShareFeedback(uiText.copied);
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         return;
@@ -114,9 +151,9 @@ function PostPage() {
 
       try {
         await navigator.clipboard.writeText(shareUrl);
-        setShareFeedback("链接已复制");
+        setShareFeedback(uiText.copied);
       } catch {
-        setShareFeedback("暂时无法分享");
+        setShareFeedback(uiText.shareFailed);
       }
     }
   };
@@ -126,9 +163,27 @@ function PostPage() {
       <section className="section post-page-section">
         <div className="tag-page-topbar">
           <p className="tag-page-back">
-            <Link to="/">← Back to home</Link>
+            <Link to={isEnglish ? "/en" : "/"}>{uiText.backHome}</Link>
           </p>
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <div className="post-detail-topbar-actions">
+            {alternatePost && (
+              <Link
+                className="post-detail-language-switch"
+                to={
+                  alternatePost.language === "en"
+                    ? `/en/post/${alternatePost.slug}`
+                    : `/post/${alternatePost.slug}`
+                }
+              >
+                {alternatePost.language === "en" ? "English Version" : "中文版"}
+              </Link>
+            )}
+            <ThemeToggle
+              theme={theme}
+              onToggle={toggleTheme}
+              locale={language === "en" ? "en" : "zh"}
+            />
+          </div>
         </div>
 
         <article className="post-detail-shell">
@@ -163,7 +218,7 @@ function PostPage() {
           </header>
 
           <div className="post-detail-body">
-            <Suspense fallback={<p className="post-detail-loading">Loading content...</p>}>
+            <Suspense fallback={<p className="post-detail-loading">{uiText.loadingContent}</p>}>
               <PostContent content={post.content} />
             </Suspense>
 
@@ -174,7 +229,7 @@ function PostPage() {
                 onClick={handleCompleteReading}
                 disabled={hasCompletedReading}
               >
-                {hasCompletedReading ? "已读完" : "读完了"}
+                {hasCompletedReading ? uiText.readDone : uiText.readAction}
               </button>
 
               <button
@@ -182,7 +237,7 @@ function PostPage() {
                 type="button"
                 onClick={handleShareArticle}
               >
-                分享文章
+                {uiText.shareArticle}
               </button>
             </div>
 
@@ -190,7 +245,7 @@ function PostPage() {
           </div>
         </article>
 
-        <CommentsSection postSlug={post.slug} postTitle={post.title} />
+        <CommentsSection postSlug={post.slug} postTitle={post.title} language={language} />
       </section>
     </div>
   );
