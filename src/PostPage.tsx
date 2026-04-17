@@ -12,6 +12,7 @@ import {
 } from "./lib/postLikes";
 import {
   fetchPublishedPostBySlug,
+  fetchPublishedPosts,
   fetchPublishedPostTranslation,
 } from "./lib/posts";
 import { getPostTags, getTagStyle } from "./lib/tags";
@@ -31,6 +32,9 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
   const [likeUpdating, setLikeUpdating] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const [showMobileBackToTop, setShowMobileBackToTop] = useState(false);
+  const [previousPost, setPreviousPost] = useState<Post | null>(null);
+  const [nextPost, setNextPost] = useState<Post | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
   const postBodyRef = useRef<HTMLDivElement | null>(null);
   const { theme, toggleTheme } = useTheme();
   const isEnglish = language === "en";
@@ -48,6 +52,11 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
     likedAction: isEnglish ? "Liked" : "已喜欢",
     shareArticle: isEnglish ? "Share article" : "分享文章",
     backToTop: isEnglish ? "Top" : "顶部",
+    continueLabel: isEnglish ? "NEXT" : "NEXT",
+    continueReading: isEnglish ? "Continue Reading" : "继续阅读",
+    previousPost: isEnglish ? "Previous Post" : "上一篇",
+    nextPost: isEnglish ? "Next Post" : "下一篇",
+    relatedPosts: isEnglish ? "Related Posts" : "相关文章",
   };
   const currentPostUrl = `${window.location.origin}${window.location.pathname}`;
 
@@ -67,17 +76,70 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
       } else {
         setPost(data);
 
-        if (data?.translation_group) {
-          const targetLanguage = language === "zh" ? "en" : "zh";
-          const { data: translationData, error: translationError } =
-            await fetchPublishedPostTranslation(data.translation_group, targetLanguage);
+        if (data) {
+          const { data: allPosts, error: allPostsError } = await fetchPublishedPosts(language);
 
-          if (translationError) {
-            console.error("Failed to fetch translated post:", translationError);
+          if (allPostsError) {
+            console.error("Failed to fetch surrounding posts:", allPostsError);
+            setPreviousPost(null);
+            setNextPost(null);
+            setRelatedPosts([]);
           } else {
-            setAlternatePost(translationData ?? null);
+            const orderedPosts = allPosts ?? [];
+            const currentIndex = orderedPosts.findIndex(
+              (candidate) => candidate.slug === data.slug,
+            );
+            const currentTags = getPostTags(data);
+
+            setPreviousPost(
+              currentIndex > 0 ? orderedPosts[currentIndex - 1] : null,
+            );
+            setNextPost(
+              currentIndex >= 0 && currentIndex < orderedPosts.length - 1
+                ? orderedPosts[currentIndex + 1]
+                : null,
+            );
+
+            const related = orderedPosts
+              .filter((candidate) => candidate.slug !== data.slug)
+              .map((candidate) => ({
+                post: candidate,
+                score: getPostTags(candidate).filter((tag) => currentTags.includes(tag)).length,
+              }))
+              .filter(({ score }) => score > 0)
+              .sort((left, right) => {
+                if (right.score !== left.score) {
+                  return right.score - left.score;
+                }
+
+                return (
+                  new Date(right.post.published_at).getTime() -
+                  new Date(left.post.published_at).getTime()
+                );
+              })
+              .slice(0, 1)
+              .map(({ post: candidate }) => candidate);
+
+            setRelatedPosts(related);
+          }
+
+          if (data.translation_group) {
+            const targetLanguage = language === "zh" ? "en" : "zh";
+            const { data: translationData, error: translationError } =
+              await fetchPublishedPostTranslation(data.translation_group, targetLanguage);
+
+            if (translationError) {
+              console.error("Failed to fetch translated post:", translationError);
+            } else {
+              setAlternatePost(translationData ?? null);
+            }
+          } else {
+            setAlternatePost(null);
           }
         } else {
+          setPreviousPost(null);
+          setNextPost(null);
+          setRelatedPosts([]);
           setAlternatePost(null);
         }
       }
@@ -282,6 +344,9 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
     });
   };
 
+  const getPostPath = (targetPost: Post) =>
+    targetPost.language === "en" ? `/en/post/${targetPost.slug}` : `/post/${targetPost.slug}`;
+
   return (
     <div className={`page post-page ${isEnglish ? "post-page-en" : "post-page-zh"}`}>
       <section className="section post-page-section">
@@ -380,6 +445,68 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
             {shareFeedback && <p className="post-share-feedback">{shareFeedback}</p>}
           </div>
         </article>
+
+        {(previousPost || nextPost || relatedPosts.length > 0) && (
+          <section className="post-continue-reading">
+            <div className="section-header post-continue-reading-header">
+              <p className="section-label">{uiText.continueLabel}</p>
+              <h2 className="section-title post-continue-reading-title">
+                {uiText.continueReading}
+              </h2>
+            </div>
+
+            {(previousPost || nextPost) && (
+              <div className="post-neighbor-grid">
+                {previousPost && (
+                  <article className="post-neighbor-card">
+                    <p className="post-neighbor-label">{uiText.previousPost}</p>
+                    <h3 className="post-neighbor-title">
+                      <Link to={getPostPath(previousPost)}>{previousPost.title}</Link>
+                    </h3>
+                    {previousPost.excerpt && (
+                      <p className="post-neighbor-excerpt">{previousPost.excerpt}</p>
+                    )}
+                  </article>
+                )}
+
+                {nextPost && (
+                  <article className="post-neighbor-card">
+                    <p className="post-neighbor-label">{uiText.nextPost}</p>
+                    <h3 className="post-neighbor-title">
+                      <Link to={getPostPath(nextPost)}>{nextPost.title}</Link>
+                    </h3>
+                    {nextPost.excerpt && (
+                      <p className="post-neighbor-excerpt">{nextPost.excerpt}</p>
+                    )}
+                  </article>
+                )}
+              </div>
+            )}
+
+            {relatedPosts.length > 0 && (
+              <div className="post-related-block">
+                <p className="post-related-label">{uiText.relatedPosts}</p>
+                <div className="post-related-grid">
+                  {relatedPosts.map((relatedPost) => (
+                    <article key={relatedPost.id} className="post-related-card">
+                      <div className="post-related-meta">
+                        {new Date(relatedPost.published_at).toLocaleDateString(
+                          isEnglish ? "en-US" : undefined,
+                        )}
+                      </div>
+                      <h3 className="post-related-title">
+                        <Link to={getPostPath(relatedPost)}>{relatedPost.title}</Link>
+                      </h3>
+                      {relatedPost.excerpt && (
+                        <p className="post-related-excerpt">{relatedPost.excerpt}</p>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         <CommentsSection postSlug={post.slug} postTitle={post.title} language={language} />
       </section>
