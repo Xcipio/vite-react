@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import CommentsSection from "./components/CommentsSection";
 import ThemeToggle from "./components/ThemeToggle";
 import { useTheme } from "./hooks/useTheme";
@@ -31,6 +31,7 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
   const [likeUpdating, setLikeUpdating] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const [showMobileBackToTop, setShowMobileBackToTop] = useState(false);
+  const postBodyRef = useRef<HTMLDivElement | null>(null);
   const { theme, toggleTheme } = useTheme();
   const isEnglish = language === "en";
   const uiText = {
@@ -48,6 +49,7 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
     shareArticle: isEnglish ? "Share article" : "分享文章",
     backToTop: isEnglish ? "Top" : "顶部",
   };
+  const currentPostUrl = `${window.location.origin}${window.location.pathname}`;
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -131,11 +133,15 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
         return;
       }
 
-      const scrollPosition = window.scrollY + window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const isNearBottom = documentHeight - scrollPosition <= 140;
+      const postBodyBottom = postBodyRef.current?.getBoundingClientRect().bottom;
+      if (!postBodyBottom) {
+        setShowMobileBackToTop(false);
+        return;
+      }
 
-      setShowMobileBackToTop(isNearBottom);
+      const hasReachedPostEnd = postBodyBottom <= window.innerHeight - 16;
+
+      setShowMobileBackToTop(hasReachedPostEnd);
     };
 
     handleScroll();
@@ -146,7 +152,7 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, []);
+  }, [post]);
 
   if (loading) {
     return (
@@ -228,15 +234,10 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
     setLikeUpdating(false);
 
     if (nextLikedState) {
-      const postUrl =
-        language === "en"
-          ? `${window.location.origin}/en/post/${post.slug}`
-          : `${window.location.origin}/post/${post.slug}`;
-
       void sendLikeNotification({
         postSlug: post.slug,
         postTitle: post.title,
-        postUrl,
+        postUrl: currentPostUrl,
         language,
       }).then(({ error }) => {
         if (error) {
@@ -247,23 +248,18 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
   };
 
   const handleShareArticle = async () => {
-    const shareUrl =
-      language === "en"
-        ? `${window.location.origin}/en/post/${post.slug}`
-        : `${window.location.origin}/post/${post.slug}`;
-
     try {
       if (navigator.share) {
         await navigator.share({
           title: post.title,
           text: post.excerpt ?? post.title,
-          url: shareUrl,
+          url: currentPostUrl,
         });
         setShareFeedback(uiText.shareOpened);
         return;
       }
 
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(currentPostUrl);
       setShareFeedback(uiText.copied);
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
@@ -271,7 +267,7 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
       }
 
       try {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(currentPostUrl);
         setShareFeedback(uiText.copied);
       } catch {
         setShareFeedback(uiText.shareFailed);
@@ -345,7 +341,7 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
             </div>
           </header>
 
-          <div className="post-detail-body">
+          <div className="post-detail-body" ref={postBodyRef}>
             <Suspense fallback={<p className="post-detail-loading">{uiText.loadingContent}</p>}>
               <PostContent content={post.content} />
             </Suspense>

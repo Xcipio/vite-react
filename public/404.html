@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Playxeld</title>
+    <script>
+      var pathSegmentsToKeep = 0;
+      var locationPath = window.location.pathname;
+      var search = window.location.search ? "&" + window.location.search.slice(1) : "";
+      var hash = window.location.hash || "";
+
+      window.location.replace(
+        window.location.protocol +
+          "//" +
+          window.location.hostname +
+          (window.location.port ? ":" + window.location.port : "") +
+          locationPath
+            .split("/")
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join("/") +
+          "/?/" +
+          locationPath
+            .slice(1)
+            .split("/")
+            .slice(pathSegmentsToKeep)
+            .join("/")
+            .replace(/&/g, "~and~") +
+          search.replace(/&/g, "~and~") +
+          hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
