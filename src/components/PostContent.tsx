@@ -8,33 +8,18 @@ type PostContentProps = {
 
 function PostContent({ content }: PostContentProps) {
   return (
-    <div
-      style={{
-        marginTop: "32px",
-        lineHeight: 1.8,
-        fontSize: "18px",
-      }}
-    >
+    <div className="post-content">
       <ReactMarkdown
         components={{
-          h1: ({ children }) => (
-            <h1 style={{ fontSize: "36px", margin: "32px 0 16px" }}>
-              {children}
-            </h1>
-          ),
-          h2: ({ children }) => (
-            <h2 style={{ fontSize: "28px", margin: "28px 0 12px" }}>
-              {children}
-            </h2>
-          ),
-          p: ({ children }) => <p style={{ margin: "16px 0" }}>{children}</p>,
-          ul: ({ children }) => (
-            <ul style={{ margin: "16px 0", paddingLeft: "20px" }}>{children}</ul>
-          ),
-          li: ({ children }) => <li style={{ margin: "8px 0" }}>{children}</li>,
-          strong: ({ children }) => (
-            <strong style={{ fontWeight: 700 }}>{children}</strong>
-          ),
+          h1: ({ children }) => <h1>{children}</h1>,
+          h2: ({ children }) => <h2>{children}</h2>,
+          h3: ({ children }) => <h3>{children}</h3>,
+          p: ({ children }) => <p>{children}</p>,
+          ul: ({ children }) => <ul>{children}</ul>,
+          ol: ({ children }) => <ol>{children}</ol>,
+          li: ({ children }) => <li>{children}</li>,
+          strong: ({ children }) => <strong>{children}</strong>,
+          blockquote: ({ children }) => <blockquote>{children}</blockquote>,
           code({
             className,
             children,
@@ -58,14 +43,7 @@ function PostContent({ content }: PostContentProps) {
             }
 
             return (
-              <code
-                style={{
-                  background: "#222",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-                {...props}
-              >
+              <code {...props}>
                 {children}
               </code>
             );
