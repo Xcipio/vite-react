@@ -32,10 +32,13 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
   const [likeUpdating, setLikeUpdating] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const [showMobileBackToTop, setShowMobileBackToTop] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
   const [previousPost, setPreviousPost] = useState<Post | null>(null);
   const [nextPost, setNextPost] = useState<Post | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
   const postBodyRef = useRef<HTMLDivElement | null>(null);
+  const postContentRef = useRef<HTMLDivElement | null>(null);
+  const headingElementsRef = useRef<HTMLElement[]>([]);
   const { theme, toggleTheme } = useTheme();
   const isEnglish = language === "en";
   const uiText = {
@@ -216,6 +219,81 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
     };
   }, [post]);
 
+  useEffect(() => {
+    const content = postContentRef.current;
+    if (!content) {
+      return;
+    }
+
+    let mutationObserver: MutationObserver | null = null;
+
+    const collectHeadings = () => {
+      headingElementsRef.current = Array.from(
+        content.querySelectorAll<HTMLElement>("h2[id], h3[id]"),
+      );
+      return headingElementsRef.current.length > 0;
+    };
+
+    if (!collectHeadings()) {
+      mutationObserver = new MutationObserver(() => {
+        if (collectHeadings()) {
+          mutationObserver?.disconnect();
+          mutationObserver = null;
+        }
+      });
+
+      mutationObserver.observe(content, { childList: true, subtree: true });
+    }
+
+    return () => {
+      mutationObserver?.disconnect();
+    };
+  }, [post?.slug, language]);
+
+  useEffect(() => {
+    const updateReadingFeedback = () => {
+      const content = postContentRef.current;
+      if (!content) {
+        return;
+      }
+
+      const rect = content.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const progressStart = viewportHeight * 0.22;
+      const progressRange = Math.max(rect.height - viewportHeight * 0.44, 1);
+      const nextProgress = Math.min(
+        1,
+        Math.max(0, (progressStart - rect.top) / progressRange),
+      );
+
+      setReadingProgress((current) =>
+        Math.abs(current - nextProgress) > 0.01 ? nextProgress : current,
+      );
+
+      const activationLine = viewportHeight * 0.28;
+      let activeHeadingId = "";
+
+      headingElementsRef.current.forEach((heading) => {
+        if (heading.getBoundingClientRect().top <= activationLine) {
+          activeHeadingId = heading.id;
+        }
+      });
+
+      headingElementsRef.current.forEach((heading) => {
+        heading.classList.toggle("is-active", heading.id === activeHeadingId);
+      });
+    };
+
+    updateReadingFeedback();
+    window.addEventListener("scroll", updateReadingFeedback, { passive: true });
+    window.addEventListener("resize", updateReadingFeedback);
+
+    return () => {
+      window.removeEventListener("scroll", updateReadingFeedback);
+      window.removeEventListener("resize", updateReadingFeedback);
+    };
+  }, [post?.slug, language]);
+
   if (loading) {
     return (
       <div className="page post-page">
@@ -350,6 +428,13 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
 
   return (
     <div className={`page post-page ${isEnglish ? "post-page-en" : "post-page-zh"}`}>
+      <div className="post-reading-rail" aria-hidden="true">
+        <div
+          className="post-reading-rail-progress"
+          style={{ transform: `scaleY(${readingProgress})` }}
+        />
+      </div>
+
       <section className="section post-page-section">
         <div className="tag-page-topbar">
           <p className="tag-page-back">
@@ -377,7 +462,7 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
         </div>
 
         <article className="post-detail-shell">
-          <header className="post-detail-hero">
+          <header className="post-detail-hero post-detail-enter-hero">
             <p className="section-label">ESSAY</p>
             <h1 className="post-detail-title">{post.title}</h1>
 
@@ -407,10 +492,12 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
             </div>
           </header>
 
-          <div className="post-detail-body" ref={postBodyRef}>
-            <Suspense fallback={<p className="post-detail-loading">{uiText.loadingContent}</p>}>
-              <PostContent content={post.content} />
-            </Suspense>
+          <div className="post-detail-body post-detail-enter-body" ref={postBodyRef}>
+            <div ref={postContentRef}>
+              <Suspense fallback={<p className="post-detail-loading">{uiText.loadingContent}</p>}>
+                <PostContent content={post.content} />
+              </Suspense>
+            </div>
 
             <div className="post-read-complete">
               <button

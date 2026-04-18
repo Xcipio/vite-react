@@ -76,17 +76,19 @@ function TagPage() {
         <div className={`tag-page-hero ${heroToneClass}`}>
           <div className="tag-page-topbar">
             <p className="tag-page-back">
-              <Link to="/">← Back to home</Link>
+              <Link to="/">← 返回主页</Link>
             </p>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
 
-          <p className="section-label">TAG PAGE</p>
-          <h1 className="tag-page-title">{decodedTag}</h1>
-          <p className="tag-page-description">{tagDescription}</p>
-          <p className="tag-page-subtitle">
-            这里汇总了所有带有这个标签的文章。当前共 {filteredPosts.length} 篇。
-          </p>
+          <div className="tag-page-hero-copy">
+            <p className="section-label">TAG PAGE</p>
+            <h1 className="tag-page-title">{decodedTag}</h1>
+            <p className="tag-page-description">{tagDescription}</p>
+            <p className="tag-page-subtitle">
+              这里汇总了所有带有这个标签的文章。当前共 {filteredPosts.length} 篇。
+            </p>
+          </div>
 
           {siblingTags.length > 0 && (
             <div className="tag-page-tag-row">

@@ -343,7 +343,7 @@ function HomePage() {
           </div>
         ) : (
           <>
-            <div className="posts-grid">
+            <div className="posts-grid home-posts-grid">
               {currentPosts.map((post) => (
                 <article key={post.id} className="post-card">
                   <div className="post-meta">
