@@ -21,6 +21,12 @@ function HomePage() {
 
   const postsPerPage = 6;
   const heroLeadText = "All we need is";
+  const paginationCopy = {
+    first: "首页",
+    previous: "上一页",
+    next: "下一页",
+    last: "末页",
+  };
 
   useEffect(() => {
     const loadHomeData = async () => {
@@ -63,6 +69,10 @@ function HomePage() {
   const currentPosts = filteredPosts.slice(
     startIndex,
     startIndex + postsPerPage,
+  );
+  const paginationItems = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1,
   );
 
   return (
@@ -373,20 +383,47 @@ function HomePage() {
 
             {totalPages > 1 && (
               <div className="pagination">
-                {Array.from(
-                  { length: totalPages },
-                  (_, index) => index + 1,
-                ).map((page) => (
+                <button
+                  className="pagination-button pagination-button-nav"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  {paginationCopy.first}
+                </button>
+                <button
+                  className="pagination-button pagination-button-nav"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1}
+                >
+                  {paginationCopy.previous}
+                </button>
+                {paginationItems.map((item) => (
                   <button
-                    key={page}
+                    key={item}
                     className={`pagination-button ${
-                      currentPage === page ? "active" : ""
+                      currentPage === item ? "active" : ""
                     }`}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => setCurrentPage(item)}
                   >
-                    {page}
+                    {item}
                   </button>
                 ))}
+                <button
+                  className="pagination-button pagination-button-nav"
+                  onClick={() =>
+                    setCurrentPage((page) => Math.min(totalPages, page + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  {paginationCopy.next}
+                </button>
+                <button
+                  className="pagination-button pagination-button-nav"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  {paginationCopy.last}
+                </button>
               </div>
             )}
           </>

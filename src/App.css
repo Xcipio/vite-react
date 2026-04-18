@@ -647,6 +647,10 @@ a {
   opacity: 0.56;
 }
 
+.pagination-button-nav {
+  min-width: 56px;
+}
+
 .latest-release-section {
   margin-top: 28px;
   margin-bottom: 0;
