@@ -9,6 +9,7 @@ html {
 }
 
 body {
+  position: relative;
   margin: 0;
   min-width: 100vw;
   min-height: 100vh;
@@ -22,6 +23,27 @@ body {
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: -14%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(900px at 10% 10%, rgba(67, 102, 255, 0.18), transparent),
+    radial-gradient(1000px at 90% 0%, rgba(115, 71, 255, 0.14), transparent);
+  opacity: 0.94;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    transform 0.9s cubic-bezier(0.22, 0.7, 0.2, 1),
+    opacity 0.9s ease,
+    filter 0.9s ease;
+}
+
+body.theme-shift-active::before {
+  transition-duration: 1s;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -32,6 +54,8 @@ a {
 }
 
 #root {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   width: 100%;
 }
@@ -53,12 +77,103 @@ a {
   padding: 56px 0 92px;
 }
 
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -96px;
+  right: max(4%, 24px);
+  width: min(34vw, 360px);
+  height: 200px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    var(--hero-weather-glow, rgba(255, 210, 120, 0.12)) 0%,
+    transparent 72%
+  );
+  opacity: var(--hero-weather-opacity, 0.18);
+  filter: blur(26px);
+  transform: translate3d(
+    var(--hero-weather-shift-x, 0),
+    var(--hero-weather-shift-y, 0),
+    0
+  );
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease,
+    background 0.7s ease,
+    filter 0.7s ease;
+}
+
 .hero > * {
   width: min(1600px, 100%);
   margin-left: auto;
   margin-right: auto;
   padding-left: 36px;
   padding-right: 36px;
+}
+
+body[data-theme="light"]::before {
+  opacity: 0.82;
+  transform: translate3d(22px, -14px, 0) scale(1.02);
+  filter: saturate(0.94);
+}
+
+body[data-time-accent="midnight"]::before {
+  opacity: 1;
+  filter: saturate(1.05) hue-rotate(8deg);
+}
+
+body[data-time-accent="festive"]::before {
+  filter: saturate(1.12) hue-rotate(-6deg);
+}
+
+body[data-weather-visual="big-sun"],
+body[data-weather-visual="sunny"] {
+  --hero-weather-glow: rgba(255, 204, 92, 0.22);
+  --hero-weather-opacity: 0.26;
+  --hero-weather-shift-x: 0px;
+  --hero-weather-shift-y: 0px;
+}
+
+body[data-weather-visual="partly-cloudy"],
+body[data-weather-visual="overcast"] {
+  --hero-weather-glow: rgba(176, 205, 255, 0.18);
+  --hero-weather-opacity: 0.2;
+  --hero-weather-shift-x: -4px;
+  --hero-weather-shift-y: 2px;
+}
+
+body[data-weather-visual="light-rain"],
+body[data-weather-visual="moderate-rain"],
+body[data-weather-visual="heavy-rain"] {
+  --hero-weather-glow: rgba(92, 170, 255, 0.18);
+  --hero-weather-opacity: 0.22;
+  --hero-weather-shift-x: -6px;
+  --hero-weather-shift-y: 4px;
+}
+
+body[data-weather-visual="storm"],
+body[data-weather-visual="lightning"] {
+  --hero-weather-glow: rgba(145, 128, 255, 0.2);
+  --hero-weather-opacity: 0.24;
+  --hero-weather-shift-x: 3px;
+  --hero-weather-shift-y: -2px;
+}
+
+body[data-weather-visual="windy"] {
+  --hero-weather-glow: rgba(132, 220, 255, 0.18);
+  --hero-weather-opacity: 0.2;
+  --hero-weather-shift-x: 8px;
+  --hero-weather-shift-y: 0px;
+}
+
+body[data-weather-visual="light-snow"],
+body[data-weather-visual="heavy-snow"] {
+  --hero-weather-glow: rgba(218, 236, 255, 0.2);
+  --hero-weather-opacity: 0.18;
+  --hero-weather-shift-x: -2px;
+  --hero-weather-shift-y: -4px;
 }
 
 /* TOP */
@@ -3673,6 +3788,19 @@ body[data-theme="light"] .latest-release-title a {
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   animation: latest-release-date-bounce 3.2s ease-in-out infinite;
   transform-origin: center;
+}
+
+body[data-time-accent="midnight"] .latest-release-date-badge,
+body[data-time-accent="midnight"] .hero-side-card-title {
+  box-shadow:
+    0 10px 24px rgba(82, 129, 230, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  filter: saturate(1.04);
+}
+
+body[data-time-accent="festive"] .latest-release-date-badge,
+body[data-time-accent="festive"] .hero-side-card-title {
+  filter: saturate(1.08) hue-rotate(-6deg);
 }
 
 @keyframes latest-release-date-bounce {

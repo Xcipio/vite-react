@@ -290,6 +290,18 @@ function WeatherBadge({ locale = "zh" }: WeatherBadgeProps) {
   }, []);
 
   useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.body.setAttribute("data-weather-visual", visual);
+
+    return () => {
+      document.body.removeAttribute("data-weather-visual");
+    };
+  }, [visual]);
+
+  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
