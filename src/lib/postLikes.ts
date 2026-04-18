@@ -2,54 +2,84 @@ import { PostLike } from "../types/post-like";
 import { getClientDeviceId } from "./clientIdentity";
 import { supabase } from "./supabase";
 
-export async function fetchPostLikeState(postSlug: string) {
-  const deviceId = getClientDeviceId();
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  return supabase
-    .from("post_likes")
-    .select("*")
-    .eq("post_slug", postSlug)
-    .eq("device_id", deviceId)
-    .maybeSingle<PostLike>();
+async function invokePostLikeAction(
+  action: "state" | "activate" | "deactivate",
+  postSlug: string,
+) {
+  if (!supabaseUrl || !anonKey) {
+    return {
+      data: null,
+      error: new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY"),
+    };
+  }
+
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/post-like-actions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${anonKey}`,
+        apikey: anonKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action,
+        postSlug,
+        deviceId: getClientDeviceId(),
+      }),
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: new Error(`post-like-actions returned ${response.status}`),
+      };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error : new Error("Unknown post like action error"),
+    };
+  }
+}
+
+export async function fetchPostLikeState(postSlug: string) {
+  const result = await invokePostLikeAction("state", postSlug);
+
+  return {
+    data: result.data as PostLike | null,
+    error: result.error,
+  };
 }
 
 export async function fetchPostLikeCount(postSlug: string) {
   return supabase
     .from("post_likes")
-    .select("*", { count: "exact", head: true })
+    .select("id", { count: "exact", head: true })
     .eq("post_slug", postSlug)
     .eq("is_active", true);
 }
 
 export async function activatePostLike(postSlug: string) {
-  const deviceId = getClientDeviceId();
-  const timestamp = new Date().toISOString();
+  const result = await invokePostLikeAction("activate", postSlug);
 
-  return supabase
-    .from("post_likes")
-    .upsert({
-      post_slug: postSlug,
-      device_id: deviceId,
-      is_active: true,
-      last_liked_at: timestamp,
-      updated_at: timestamp,
-    }, {
-      onConflict: "post_slug,device_id",
-    })
-    .select()
-    .single<PostLike>();
+  return {
+    data: result.data as PostLike | null,
+    error: result.error,
+  };
 }
 
 export async function deactivatePostLike(postSlug: string) {
-  const deviceId = getClientDeviceId();
-  const timestamp = new Date().toISOString();
+  const result = await invokePostLikeAction("deactivate", postSlug);
 
-  return supabase
-    .from("post_likes")
-    .update({
-      is_active: false,
-      updated_at: timestamp,
-    })
-    .eq("post_slug", postSlug)
-    .eq("device_id", deviceId);
+  return {
+    data: result.data,
+    error: result.error,
+  };
 }

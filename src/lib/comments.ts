@@ -5,7 +5,7 @@ import { supabase } from "./supabase";
 export async function fetchApprovedComments(postSlug: string) {
   return supabase
     .from("comments")
-    .select("*")
+    .select("id, post_slug, author_name, author_email, content, parent_id, is_approved, created_at")
     .eq("post_slug", postSlug)
     .order("created_at", { ascending: false })
     .returns<Comment[]>();
