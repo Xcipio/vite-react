@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import EnglishHomePage from "./pages/EnglishHomePage";
 import TagPage from "./pages/TagPage";
 import ArtworkTagPage from "./pages/ArtworkTagPage";
+import GamesPage from "./pages/GamesPage";
 
 const PostPage = lazy(() => import("./PostPage"));
 const ArtPage = lazy(() => import("./pages/ArtPage"));
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/en" element={<EnglishHomePage />} />
+        <Route path="/games" element={<GamesPage />} />
         <Route path="/art" element={<ArtPage />} />
         <Route path="/art/tag/:tagName" element={<ArtworkTagPage />} />
         <Route path="/art/:slug" element={<ArtworkDetailPage />} />

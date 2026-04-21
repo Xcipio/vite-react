@@ -1,18 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import WeatherBadge from "../components/WeatherBadge";
 import { useTheme } from "../hooks/useTheme";
 import { fetchPublishedArtworks } from "../lib/artworks";
 import { pickDailyArtworks } from "../lib/dailyArtworkSelection";
+import {
+  fetchPublishedGames,
+  isGamePlayable,
+  pickWeightedRandomGame,
+} from "../lib/games";
 import { fetchPublishedPosts } from "../lib/posts";
 import { getPostTags, getTagStyle, sortTags } from "../lib/tags";
 import { Artwork } from "../types/artwork";
+import { Game } from "../types/game";
 import { Post } from "../types/post";
 
 function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
+  const [featuredGame, setFeaturedGame] = useState<Game | null>(null);
+  const [showGamePopout, setShowGamePopout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -33,7 +42,12 @@ function HomePage() {
       const [
         { data: postData, error: postError },
         { data: artworkData, error: artworkError },
-      ] = await Promise.all([fetchPublishedPosts(), fetchPublishedArtworks()]);
+        { data: gameData, error: gameError },
+      ] = await Promise.all([
+        fetchPublishedPosts(),
+        fetchPublishedArtworks(),
+        fetchPublishedGames(),
+      ]);
 
       if (postError) {
         console.error(postError);
@@ -47,11 +61,25 @@ function HomePage() {
         setArtworks(artworkData ?? []);
       }
 
+      if (gameError) {
+        console.error(gameError);
+      } else {
+        const publishedGames = gameData ?? [];
+        setGames(publishedGames);
+        setFeaturedGame(pickWeightedRandomGame(publishedGames));
+      }
+
       setLoading(false);
     };
 
     loadHomeData();
   }, []);
+
+  const refreshFeaturedGame = () => {
+    setFeaturedGame((currentGame) =>
+      pickWeightedRandomGame(games, currentGame?.id),
+    );
+  };
 
   const latestPost = posts[0] ?? null;
   const pinnedArtworks = pickDailyArtworks(artworks, 3);
@@ -63,6 +91,10 @@ function HomePage() {
     ...new Set(posts.flatMap((post) => getPostTags(post))),
   ]);
   const portalTags = [...new Set([...availableTags, "涂鸦"])];
+  const publishedPostSlugs = useMemo(
+    () => new Set(posts.map((post) => post.slug)),
+    [posts],
+  );
 
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
   const startIndex = (currentPage - 1) * postsPerPage;
@@ -74,6 +106,19 @@ function HomePage() {
     { length: totalPages },
     (_, index) => index + 1,
   );
+
+  useEffect(() => {
+    if (!showGamePopout) {
+      return;
+    }
+
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [showGamePopout]);
 
   return (
     <div className="page">
@@ -92,6 +137,7 @@ function HomePage() {
 
           <nav className="hero-nav">
             <a href="#posts">Posts</a>
+            <Link to="/games">Games</Link>
             <Link to="/art">Arts</Link>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
@@ -156,12 +202,20 @@ function HomePage() {
                 <span className="hero-title-dot hero-title-dot-three">.</span>
               </span>
             </h2>
-            <p className="hero-side-text">📚 🎬 🎷 🎴 🏙️ 💡 → 🤹 🎮</p>
+            <p className="hero-side-text">用「玩」的视角解构万物</p>
+            <p className="hero-side-text">把📚 🎬 🎷 🎴 🏙️ 💡 与日常变成一个个游戏</p>
             <p className="hero-side-text">
-              我正在尝试把深度随笔、实验笔记与“可游玩”的思维模型结合
+              ——这里的每篇
+              <span className="play-word hero-side-inline-play" aria-label="play">
+                <span className="p play-letter">p</span>
+                <span className="l play-letter">l</span>
+                <span className="a play-letter">a</span>
+                <span className="y play-letter">y</span>
+              </span>
+              笔记，都附带有几个迷你的游戏指南🎮🤹
             </p>
             <p className="hero-side-text">
-              让思考不再只是静态的阅读，而是变成像玩游戏一样可以交互的思维练习
+              让思考不再只是静态的阅读，而是变成像玩游戏一样可以交互的练习
             </p>
 
             <div className="hero-side-card">
@@ -208,6 +262,27 @@ function HomePage() {
                     查看全部
                   </button>
                 )}
+              </div>
+
+              <div className="hero-lucky-module">
+                <div className="hero-lucky-module-heading-group">
+                  <p className="hero-side-label hero-lucky-module-kicker">
+                    PLAY!
+                  </p>
+                  <button
+                    className="hero-lucky-module-trigger hero-lucky-module-heading"
+                    onClick={() => setShowGamePopout(true)}
+                    type="button"
+                    disabled={loading || !featuredGame}
+                  >
+                    手气不错
+                  </button>
+                </div>
+                <div className="hero-lucky-module-copy">
+                  <p className="hero-lucky-module-text">
+                    随机抽一个游戏，来玩一下吧！
+                  </p>
+                </div>
               </div>
             </div>
           </aside>
@@ -399,7 +474,9 @@ function HomePage() {
                 </button>
                 <button
                   className="pagination-button pagination-button-nav"
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  onClick={() =>
+                    setCurrentPage((page) => Math.max(1, page - 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   {paginationCopy.previous}
@@ -481,6 +558,137 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {showGamePopout && (
+        <div
+          className="hero-lucky-popout-backdrop"
+          onClick={() => setShowGamePopout(false)}
+          role="presentation"
+        >
+          <div
+            className="hero-lucky-popout"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hero-lucky-popout-title"
+          >
+            <button
+              className="hero-lucky-popout-close"
+              onClick={() => setShowGamePopout(false)}
+              type="button"
+              aria-label="关闭随机游戏弹窗"
+            >
+              ×
+            </button>
+
+            {featuredGame ? (
+              <>
+                <p className="hero-lucky-popout-kicker">
+                  {featuredGame.cover_emoji
+                    ? `${featuredGame.cover_emoji} `
+                    : ""}
+                  I'M FEELING LUCKY
+                </p>
+                <h2
+                  id="hero-lucky-popout-title"
+                  className="hero-lucky-popout-title"
+                >
+                  {featuredGame.title}
+                </h2>
+                <p className="hero-lucky-popout-hook">
+                  {featuredGame.hook ??
+                    featuredGame.cover_text ??
+                    featuredGame.summary}
+                </p>
+                {featuredGame.summary && (
+                  <div className="hero-lucky-popout-summary-card">
+                    <p className="hero-lucky-popout-summary-label">简介</p>
+                    <p className="hero-lucky-popout-summary">
+                      {featuredGame.summary}
+                    </p>
+                  </div>
+                )}
+                {featuredGame.rules && (
+                  <div className="hero-lucky-popout-rules">
+                    <p className="hero-lucky-popout-rules-label">玩法</p>
+                    <p className="hero-lucky-popout-rules-text">
+                      {featuredGame.rules}
+                    </p>
+                  </div>
+                )}
+
+                <dl className="hero-lucky-popout-facts">
+                  <div>
+                    <dt>难度</dt>
+                    <dd>{featuredGame.difficulty ?? "unknown"}</dd>
+                  </div>
+                  <div>
+                    <dt>时长</dt>
+                    <dd>
+                      {featuredGame.estimated_minutes
+                        ? `${featuredGame.estimated_minutes} 分钟`
+                        : "灵活"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>来源</dt>
+                    <dd>
+                      {featuredGame.post_title ??
+                        featuredGame.post_slug ??
+                        "standalone"}
+                    </dd>
+                  </div>
+                </dl>
+
+                {featuredGame.tags.length > 0 && (
+                  <div className="hero-lucky-popout-tags">
+                    {featuredGame.tags.map((tag) => (
+                      <span
+                        key={`${featuredGame.id}-${tag}`}
+                        className="hero-lucky-popout-tag"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="hero-lucky-popout-actions">
+                  {isGamePlayable(featuredGame, publishedPostSlugs) ? (
+                    <Link
+                      to={featuredGame.play_url!}
+                      className="hero-lucky-popout-link"
+                      onClick={() => setShowGamePopout(false)}
+                    >
+                      开始游玩 →
+                    </Link>
+                  ) : (
+                    <span className="random-game-unavailable">内容待补全</span>
+                  )}
+                  {games.length > 1 && (
+                    <button
+                      className="hero-lucky-popout-refresh"
+                      onClick={refreshFeaturedGame}
+                      type="button"
+                    >
+                      换一个
+                    </button>
+                  )}
+                  <Link
+                    to="/games"
+                    className="hero-lucky-popout-library"
+                    onClick={() => setShowGamePopout(false)}
+                  >
+                    游戏库
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <p className="state-text">游戏库还没有已发布内容。</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

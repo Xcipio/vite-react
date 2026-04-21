@@ -1,0 +1,28 @@
+export type Game = {
+  id: number;
+  slug: string;
+  title: string;
+  summary: string | null;
+  hook: string | null;
+  rules: string | null;
+  post_id: number | null;
+  post_slug: string | null;
+  post_title: string | null;
+  section_heading: string | null;
+  anchor_id: string | null;
+  language: "zh" | "en";
+  tags: string[];
+  difficulty: "easy" | "medium" | "hard" | null;
+  estimated_minutes: number | null;
+  cover_text: string | null;
+  cover_emoji: string | null;
+  play_url: string | null;
+  source_type: "post" | "standalone";
+  is_published: boolean;
+  is_featured: boolean;
+  display_order: number;
+  random_weight: number;
+  source_excerpt: string | null;
+  created_at: string;
+  updated_at: string;
+};
