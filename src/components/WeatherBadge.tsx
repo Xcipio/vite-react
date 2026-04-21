@@ -80,6 +80,18 @@ function Sun({ big = false }) {
   );
 }
 
+function Moon() {
+  return (
+    <g className="weather-moon">
+      <circle className="weather-moon-body" cx="18" cy="18" r="10" fill="#cfe0ff" />
+      <circle className="weather-moon-cutout" cx="22.5" cy="14.5" r="10" fill="#0b1020" />
+      <circle className="weather-moon-star" cx="11.8" cy="11.4" r="1.2" fill="#eef4ff" opacity="0.95" />
+      <circle className="weather-moon-star" cx="27.5" cy="9.8" r="1" fill="#eef4ff" opacity="0.85" />
+      <circle className="weather-moon-star" cx="31.2" cy="18.4" r="1.1" fill="#eef4ff" opacity="0.9" />
+    </g>
+  );
+}
+
 function Rain({ heavy = false }) {
   const drops = heavy ? [12, 20, 28] : [15, 24];
   const length = heavy ? 8 : 6.4;
@@ -160,7 +172,17 @@ function LightningBolt() {
   );
 }
 
-function WeatherIcon({ visual }: { visual: WeatherVisual }) {
+function WeatherIcon({
+  visual,
+  isDay,
+}: {
+  visual: WeatherVisual;
+  isDay: boolean;
+}) {
+  if ((visual === "big-sun" || visual === "sunny") && !isDay) {
+    return <Moon />;
+  }
+
   switch (visual) {
     case "big-sun":
       return <Sun big />;
@@ -261,6 +283,7 @@ function WeatherIcon({ visual }: { visual: WeatherVisual }) {
 
 function WeatherBadge({ locale = "zh" }: WeatherBadgeProps) {
   const [visual, setVisual] = useState<WeatherVisual>("sunny");
+  const [isDay, setIsDay] = useState(true);
   const [animationEnabled, setAnimationEnabled] = useState(true);
 
   useEffect(() => {
@@ -276,6 +299,7 @@ function WeatherBadge({ locale = "zh" }: WeatherBadgeProps) {
         const snapshot = await fetchWeatherSnapshot(coordinates);
         if (isActive) {
           setVisual(snapshot.visual);
+          setIsDay(snapshot.isDay);
         }
       } catch (error) {
         console.error("Failed to load local weather:", error);
@@ -344,7 +368,7 @@ function WeatherBadge({ locale = "zh" }: WeatherBadgeProps) {
       }}
     >
       <svg viewBox="0 0 46 46" role="img" aria-hidden="true">
-        <WeatherIcon visual={visual} />
+        <WeatherIcon visual={visual} isDay={isDay} />
       </svg>
     </button>
   );

@@ -206,10 +206,53 @@ function GamesPage() {
                         {randomGame.cover_emoji ? `${randomGame.cover_emoji} ` : ""}
                         Lucky Pick
                       </p>
-                      <h2 className="games-page-random-title">{randomGame.title}</h2>
-                      <p className="games-page-random-hook">
-                        {randomGame.hook ?? randomGame.cover_text ?? randomGame.summary}
-                      </p>
+                      <div className="games-page-hero-head">
+                        <div className="games-page-hero-head-copy">
+                          <h2 className="games-page-random-title">{randomGame.title}</h2>
+                          <p className="games-page-random-hook">
+                            {randomGame.hook ?? randomGame.cover_text ?? randomGame.summary}
+                          </p>
+                        </div>
+
+                        <div className="games-page-random-meta">
+                          <div className="games-page-random-facts">
+                            <p>
+                              <span>当前池子</span>
+                              <strong>{filteredGames.length} 个游戏</strong>
+                            </p>
+                            <p>
+                              <span>难度</span>
+                              <strong>{randomGame.difficulty ?? "unknown"}</strong>
+                            </p>
+                            <p>
+                              <span>时长</span>
+                              <strong>
+                                {randomGame.estimated_minutes
+                                  ? `${randomGame.estimated_minutes} 分钟`
+                                  : "灵活"}
+                              </strong>
+                            </p>
+                            <p>
+                              <span>状态</span>
+                              <strong className="games-page-meta-status">
+                                {isGamePlayable(randomGame, publishedPostSlugs)
+                                  ? "可游玩"
+                                  : "待补全"}
+                              </strong>
+                            </p>
+                          </div>
+
+                          {randomGame.tags.length > 0 && (
+                            <div className="games-page-tag-row">
+                              {randomGame.tags.map((tag) => (
+                                <span key={`${randomGame.id}-${tag}`} className="games-page-tag">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       {randomGame.summary && (
                         <div className="games-page-info-card">
                           <p className="games-page-info-label">简介</p>
@@ -229,7 +272,7 @@ function GamesPage() {
                             to={randomGame.play_url!}
                             className="hero-lucky-popout-link"
                           >
-                            开始游玩 →
+                            游戏背景 →
                           </Link>
                         ) : (
                           <span className="games-page-unavailable">内容待补全</span>
@@ -245,45 +288,6 @@ function GamesPage() {
                         )}
                       </div>
                     </div>
-
-                    <div className="games-page-random-meta">
-                      <div className="games-page-random-facts">
-                        <p>
-                          <span>当前池子</span>
-                          <strong>{filteredGames.length} 个游戏</strong>
-                        </p>
-                        <p>
-                          <span>难度</span>
-                          <strong>{randomGame.difficulty ?? "unknown"}</strong>
-                        </p>
-                        <p>
-                          <span>时长</span>
-                          <strong>
-                            {randomGame.estimated_minutes
-                              ? `${randomGame.estimated_minutes} 分钟`
-                              : "灵活"}
-                          </strong>
-                        </p>
-                        <p>
-                          <span>状态</span>
-                          <strong>
-                            {isGamePlayable(randomGame, publishedPostSlugs)
-                              ? "可游玩"
-                              : "待补全"}
-                          </strong>
-                        </p>
-                      </div>
-
-                      {randomGame.tags.length > 0 && (
-                        <div className="games-page-tag-row">
-                          {randomGame.tags.map((tag) => (
-                            <span key={`${randomGame.id}-${tag}`} className="games-page-tag">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
                   </article>
                 )}
 
@@ -294,10 +298,60 @@ function GamesPage() {
                         {featuredGame.cover_emoji ? `${featuredGame.cover_emoji} ` : ""}
                         Featured Game
                       </p>
-                      <h2 className="games-page-featured-title">{featuredGame.title}</h2>
-                      <p className="games-page-featured-hook">
-                        {featuredGame.hook ?? featuredGame.cover_text ?? featuredGame.summary}
-                      </p>
+                      <div className="games-page-hero-head">
+                        <div className="games-page-hero-head-copy">
+                          <h2 className="games-page-featured-title">{featuredGame.title}</h2>
+                          <p className="games-page-featured-hook">
+                            {featuredGame.hook ?? featuredGame.cover_text ?? featuredGame.summary}
+                          </p>
+                        </div>
+
+                        <div className="games-page-featured-meta">
+                          <div className="games-page-featured-facts">
+                            <p>
+                              <span>难度</span>
+                              <strong>{featuredGame.difficulty ?? "unknown"}</strong>
+                            </p>
+                            <p>
+                              <span>时长</span>
+                              <strong>
+                                {featuredGame.estimated_minutes
+                                  ? `${featuredGame.estimated_minutes} 分钟`
+                                  : "灵活"}
+                              </strong>
+                            </p>
+                            <p>
+                              <span>来源</span>
+                              <strong>
+                                {featuredGame.post_title ??
+                                  featuredGame.post_slug ??
+                                  "standalone"}
+                              </strong>
+                            </p>
+                            <p>
+                              <span>状态</span>
+                              <strong className="games-page-meta-status">
+                                {isGamePlayable(featuredGame, publishedPostSlugs)
+                                  ? "可游玩"
+                                  : "待补全"}
+                              </strong>
+                            </p>
+                          </div>
+
+                          {featuredGame.tags.length > 0 && (
+                            <div className="games-page-tag-row">
+                              {featuredGame.tags.map((tag) => (
+                                <span
+                                  key={`${featuredGame.id}-${tag}`}
+                                  className="games-page-tag"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       {featuredGame.summary && (
                         <div className="games-page-info-card">
                           <p className="games-page-info-label">简介</p>
@@ -317,53 +371,12 @@ function GamesPage() {
                             to={featuredGame.play_url!}
                             className="hero-lucky-popout-link"
                           >
-                            开始游玩 →
+                            游戏背景 →
                           </Link>
                         ) : (
                           <span className="games-page-unavailable">内容待补全</span>
                         )}
                       </div>
-                    </div>
-
-                    <div className="games-page-featured-meta">
-                      <div className="games-page-featured-facts">
-                        <p>
-                          <span>难度</span>
-                          <strong>{featuredGame.difficulty ?? "unknown"}</strong>
-                        </p>
-                        <p>
-                          <span>时长</span>
-                          <strong>
-                            {featuredGame.estimated_minutes
-                              ? `${featuredGame.estimated_minutes} 分钟`
-                              : "灵活"}
-                          </strong>
-                        </p>
-                        <p>
-                          <span>来源</span>
-                          <strong>
-                            {featuredGame.post_title ?? featuredGame.post_slug ?? "standalone"}
-                          </strong>
-                        </p>
-                        <p>
-                          <span>状态</span>
-                          <strong>
-                            {isGamePlayable(featuredGame, publishedPostSlugs)
-                              ? "可游玩"
-                              : "待补全"}
-                          </strong>
-                        </p>
-                      </div>
-
-                      {featuredGame.tags.length > 0 && (
-                        <div className="games-page-tag-row">
-                          {featuredGame.tags.map((tag) => (
-                            <span key={`${featuredGame.id}-${tag}`} className="games-page-tag">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </article>
                 )}
@@ -419,7 +432,7 @@ function GamesPage() {
                           to={game.play_url!}
                           className="hero-lucky-popout-link game-card-link"
                         >
-                          开始游玩 →
+                          游戏背景 →
                         </Link>
                       ) : (
                         <span className="games-page-unavailable">内容待补全</span>

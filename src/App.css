@@ -248,6 +248,7 @@ body[data-weather-visual="heavy-snow"] {
 }
 
 .weather-badge-paused .weather-sun,
+.weather-badge-paused .weather-moon,
 .weather-badge-paused .weather-cloud,
 .weather-badge-paused .weather-cloud-secondary,
 .weather-badge-paused .weather-rain-drop,
@@ -260,6 +261,16 @@ body[data-weather-visual="heavy-snow"] {
 .weather-sun {
   animation: weather-sun-spin 12s linear infinite;
   transform-box: fill-box;
+}
+
+.weather-moon {
+  animation: weather-moon-float 4.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.weather-moon-cutout {
+  fill: var(--weather-moon-cutout, #0b1020);
 }
 
 .weather-cloud {
@@ -506,6 +517,17 @@ body[data-weather-visual="heavy-snow"] {
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes weather-moon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-1.8px);
   }
 }
 
@@ -1921,9 +1943,7 @@ body[data-weather-visual="heavy-snow"] {
 }
 
 .games-page-random-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.78fr);
-  gap: 24px;
+  display: block;
   margin-bottom: 26px;
   padding: 28px 30px;
   border-radius: 28px;
@@ -2028,33 +2048,22 @@ body[data-weather-visual="heavy-snow"] {
   flex-direction: column;
   justify-content: flex-start;
   align-self: start;
-  gap: 14px;
-  padding: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0.1)),
-    rgba(255, 255, 255, 0.015);
+  gap: 16px;
+  padding: 6px 0 6px 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .games-page-random-facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .games-page-random-facts p {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: minmax(0, 76px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: baseline;
   margin: 0;
-  min-height: 84px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
-    rgba(255, 255, 255, 0.02);
 }
 
 .games-page-random-facts span {
@@ -2066,16 +2075,26 @@ body[data-weather-visual="heavy-snow"] {
 
 .games-page-random-facts strong {
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.45;
   font-weight: 600;
   color: rgba(245, 247, 251, 0.84);
   word-break: break-word;
 }
 
-.games-page-featured-card {
+.games-page-hero-head {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.78fr);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
   gap: 24px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.games-page-hero-head-copy {
+  min-width: 0;
+}
+
+.games-page-featured-card {
+  display: block;
   margin-bottom: 30px;
   padding: 28px 30px;
   border-radius: 28px;
@@ -2142,33 +2161,22 @@ body[data-weather-visual="heavy-snow"] {
   flex-direction: column;
   justify-content: flex-start;
   align-self: start;
-  gap: 14px;
-  padding: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0.1)),
-    rgba(255, 255, 255, 0.015);
+  gap: 16px;
+  padding: 6px 0 6px 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .games-page-featured-facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .games-page-featured-facts p {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: minmax(0, 76px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: baseline;
   margin: 0;
-  min-height: 84px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
-    rgba(255, 255, 255, 0.02);
 }
 
 .games-page-featured-facts span {
@@ -2180,10 +2188,31 @@ body[data-weather-visual="heavy-snow"] {
 
 .games-page-featured-facts strong {
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.45;
   font-weight: 600;
   color: rgba(245, 247, 251, 0.84);
   word-break: break-word;
+}
+
+.games-page-meta-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 251, 0.34);
+}
+
+.games-page-meta-status {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 247, 251, 0.12);
+  background: rgba(245, 247, 251, 0.06);
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 .games-grid {
@@ -4551,7 +4580,6 @@ body[data-weather-visual="heavy-snow"] {
   .games-page-random-card,
   .games-page-featured-card {
     padding: 24px 22px;
-    gap: 18px;
   }
 
   .games-page-random-title,
@@ -4580,12 +4608,25 @@ body[data-weather-visual="heavy-snow"] {
 
   .games-page-random-facts,
   .games-page-featured-facts {
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .games-page-random-facts p,
   .games-page-featured-facts p {
-    min-height: 0;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .games-page-random-meta,
+  .games-page-featured-meta {
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .games-page-hero-head {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .game-card-title {
@@ -4685,6 +4726,7 @@ body[data-weather-visual="heavy-snow"] {
 ========================= */
 
 body[data-theme="light"] {
+  --weather-moon-cutout: #f5f7fb;
   background:
     radial-gradient(900px at 10% 10%, rgba(67, 102, 255, 0.08), transparent),
     radial-gradient(1000px at 90% 0%, rgba(115, 71, 255, 0.06), transparent),
@@ -4698,6 +4740,14 @@ body[data-theme="light"] .page {
     radial-gradient(900px at 10% 10%, rgba(67, 102, 255, 0.08), transparent),
     radial-gradient(1000px at 90% 0%, rgba(115, 71, 255, 0.06), transparent),
     #f5f7fb;
+}
+
+body[data-theme="light"] .weather-moon-body {
+  fill: #465e96;
+}
+
+body[data-theme="light"] .weather-moon-star {
+  fill: #6f86bb;
 }
 
 /* 导航 */
@@ -4783,21 +4833,13 @@ body[data-theme="light"] .art-card-subtitle {
 body[data-theme="light"] .games-page-hero-side,
 body[data-theme="light"] .games-page-random-meta,
 body[data-theme="light"] .games-page-featured-meta {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background:
-    linear-gradient(180deg, rgba(245, 247, 251, 0.76), rgba(245, 247, 251, 0.58)),
-    rgba(255, 255, 255, 0.48);
-}
-
-body[data-theme="light"] .games-page-random-facts p,
-body[data-theme="light"] .games-page-featured-facts p {
-  border-color: rgba(0, 0, 0, 0.08);
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.028), rgba(0, 0, 0, 0.012)),
-    rgba(255, 255, 255, 0.66);
+  border: 0;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
 }
 
 body[data-theme="light"] .games-page-hero-side-label,
+body[data-theme="light"] .games-page-meta-label,
 body[data-theme="light"] .games-page-random-facts span,
 body[data-theme="light"] .games-page-featured-facts span,
 body[data-theme="light"] .game-card-difficulty,
@@ -4838,6 +4880,11 @@ body[data-theme="light"] .games-page-featured-facts strong,
 body[data-theme="light"] .game-card-meta,
 body[data-theme="light"] .games-page-tag {
   color: rgba(5, 7, 13, 0.82);
+}
+
+body[data-theme="light"] .games-page-meta-status {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.035);
 }
 
 body[data-theme="light"] .games-page-filter-chip,

@@ -660,7 +660,7 @@ function HomePage() {
                       className="hero-lucky-popout-link"
                       onClick={() => setShowGamePopout(false)}
                     >
-                      开始游玩 →
+                      游戏背景 →
                     </Link>
                   ) : (
                     <span className="random-game-unavailable">内容待补全</span>
