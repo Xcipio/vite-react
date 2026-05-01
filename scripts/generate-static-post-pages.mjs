@@ -53,17 +53,26 @@ function buildPostUrl(post) {
     : `https://playxeld.com/post/${encodedSlug}`;
 }
 
-function injectMeta(html, post, fallbackDescription) {
-  const title = escapeHtml(buildPageTitle(post));
-  const description = escapeHtml(buildDescription(post, fallbackDescription));
-  const url = escapeHtml(buildPostUrl(post));
-  const image = "https://playxeld.com/site-icon.png?v=1";
-  const locale = post.language === "en" ? "en_US" : "zh_CN";
+function buildFriendArticleUrl(article) {
+  return `https://playxeld.com/friends/${encodeURIComponent(article.slug)}`;
+}
+
+function injectMeta(html, entry, fallbackDescription, options = {}) {
+  const {
+    lang = "zh-CN",
+    locale = "zh_CN",
+    url = buildPostUrl(entry),
+    image = "https://playxeld.com/site-icon.png?v=1",
+  } = options;
+  const title = escapeHtml(buildPageTitle(entry));
+  const description = escapeHtml(buildDescription(entry, fallbackDescription));
+  const canonicalUrl = escapeHtml(url);
+  const ogImage = image;
   const siteName = "Playxeld";
 
   let nextHtml = html;
 
-  nextHtml = nextHtml.replace(/<html lang="[^"]*">/, `<html lang="${post.language === "en" ? "en" : "zh-CN"}">`);
+  nextHtml = nextHtml.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
   nextHtml = nextHtml.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
   nextHtml = nextHtml.replace(
     /<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/,
@@ -87,11 +96,11 @@ function injectMeta(html, post, fallbackDescription) {
   );
   nextHtml = nextHtml.replace(
     /<meta\s+property="og:image"\s+content="[\s\S]*?"\s*\/>/,
-    `<meta property="og:image" content="${image}" />`,
+    `<meta property="og:image" content="${ogImage}" />`,
   );
   nextHtml = nextHtml.replace(
     /<meta\s+property="og:url"\s+content="[\s\S]*?"\s*\/>/,
-    `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:url" content="${canonicalUrl}" />`,
   );
   nextHtml = nextHtml.replace(
     /<meta\s+name="twitter:card"\s+content="[\s\S]*?"\s*\/>/,
@@ -107,13 +116,13 @@ function injectMeta(html, post, fallbackDescription) {
   );
   nextHtml = nextHtml.replace(
     /<meta\s+name="twitter:image"\s+content="[\s\S]*?"\s*\/>/,
-    `<meta name="twitter:image" content="${image}" />`,
+    `<meta name="twitter:image" content="${ogImage}" />`,
   );
 
   if (!nextHtml.includes('property="og:locale"')) {
     nextHtml = nextHtml.replace(
       "</head>",
-      `    <meta property="og:locale" content="${locale}" />\n    <link rel="canonical" href="${url}" />\n  </head>`,
+      `    <meta property="og:locale" content="${locale}" />\n    <link rel="canonical" href="${canonicalUrl}" />\n  </head>`,
     );
   }
 
@@ -142,6 +151,33 @@ async function fetchPublishedPosts({ supabaseUrl, supabaseAnonKey }) {
   return response.json();
 }
 
+async function fetchPublishedFriendArticles({ supabaseUrl, supabaseAnonKey }) {
+  const query = new URLSearchParams({
+    select: "slug,title,excerpt,author_name,author_avatar_url,is_published",
+    is_published: "eq.true",
+    order: "published_at.desc",
+  });
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/friend_articles?${query.toString()}`,
+    {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        Accept: "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch friend articles for static meta generation: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
 async function writePostPage(templateHtml, post, fallbackDescription) {
   const targetDir =
     post.language === "en"
@@ -151,7 +187,28 @@ async function writePostPage(templateHtml, post, fallbackDescription) {
   await fs.mkdir(targetDir, { recursive: true });
   await fs.writeFile(
     path.join(targetDir, "index.html"),
-    injectMeta(templateHtml, post, fallbackDescription),
+    injectMeta(templateHtml, post, fallbackDescription, {
+      lang: post.language === "en" ? "en" : "zh-CN",
+      locale: post.language === "en" ? "en_US" : "zh_CN",
+      url: buildPostUrl(post),
+    }),
+    "utf8",
+  );
+}
+
+async function writeFriendArticlePage(templateHtml, article, fallbackDescription) {
+  const targetDir = path.join(distRoot, "friends", article.slug);
+  const fallbackImage = article.author_avatar_url || "https://playxeld.com/site-icon.png?v=1";
+
+  await fs.mkdir(targetDir, { recursive: true });
+  await fs.writeFile(
+    path.join(targetDir, "index.html"),
+    injectMeta(templateHtml, article, fallbackDescription, {
+      lang: "zh-CN",
+      locale: "zh_CN",
+      url: buildFriendArticleUrl(article),
+      image: fallbackImage,
+    }),
     "utf8",
   );
 }
@@ -178,16 +235,25 @@ async function main() {
     );
   }
 
-  const [templateHtml, posts] = await Promise.all([
+  const [templateHtml, posts, friendArticles] = await Promise.all([
     fs.readFile(templatePath, "utf8"),
     fetchPublishedPosts({ supabaseUrl, supabaseAnonKey }),
+    fetchPublishedFriendArticles({ supabaseUrl, supabaseAnonKey }),
   ]);
 
   const defaultDescription =
     "Playxeld 的个人博客，记录关于游戏、故事、语言与创作系统的思考。";
+  const friendArticlesDescription =
+    "Playxeld 的朋友投稿栏目，收录客座作者的文章与创作。";
 
   await Promise.all(
     posts.map((post) => writePostPage(templateHtml, post, defaultDescription)),
+  );
+
+  await Promise.all(
+    friendArticles.map((article) =>
+      writeFriendArticlePage(templateHtml, article, friendArticlesDescription),
+    ),
   );
 }
 
