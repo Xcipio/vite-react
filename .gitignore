@@ -25,3 +25,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+supabase/.temp/
+*.code-workspace
+To-Do.md

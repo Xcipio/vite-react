@@ -765,12 +765,9 @@ function HomePage() {
         <section className="section friends-home-section">
           <div className="section-header">
             <div>
-              <h2 className="section-title">
+              <h2 className="section-title latest-release-section-title">
                 投稿
               </h2>
-              <div className="section-meta">
-                来自朋友的最新来稿
-              </div>
             </div>
             <div className="section-meta">
               <Link to="/friends">进入 Friends →</Link>
