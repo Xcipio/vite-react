@@ -84,10 +84,12 @@ function calculateSolarTime(
   const localMeanTime =
     hourAngle + rightAscension - 0.06571 * approximateTime - 6.622;
   const universalTime = normalizeHours(localMeanTime - longitudeHour);
-  const utcMilliseconds =
-    Date.UTC(year, month, day, 0, 0, 0) + universalTime * 3600000;
+  const timezoneOffsetHours =
+    -new Date(year, month, day, 12, 0, 0, 0).getTimezoneOffset() / 60;
+  const localHours = normalizeHours(universalTime + timezoneOffsetHours);
+  const localMidnight = new Date(year, month, day, 0, 0, 0, 0).getTime();
 
-  return new Date(utcMilliseconds);
+  return new Date(localMidnight + localHours * 3600000);
 }
 
 export function getSolarBoundary(
