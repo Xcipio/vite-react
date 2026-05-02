@@ -104,7 +104,7 @@ function FriendsPage() {
               <div className="friends-latest-section-head">
                 <div>
                   <p className="friends-column-label">Recent Posts</p>
-                  <h2 className="friends-column-title">最近 5 篇</h2>
+                  <h2 className="friends-column-title">最新投稿</h2>
                 </div>
               </div>
 
