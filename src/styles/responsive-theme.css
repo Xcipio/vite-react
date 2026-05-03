@@ -29,7 +29,6 @@
   }
 
   .friends-page-overview-strip,
-  .friends-columns,
   .friends-latest-grid,
   .friends-category-layout {
     grid-template-columns: 1fr;
@@ -45,7 +44,13 @@
   }
 
   .friends-latest-card-emphasis {
+    grid-template-columns: 1fr;
     grid-column: span 1;
+  }
+
+  .friends-latest-card-side {
+    padding-left: 0;
+    border-left: 0;
   }
 
   .art-card {
@@ -78,10 +83,6 @@
 
   .friend-article-author-card-body {
     grid-template-columns: 1fr;
-  }
-
-  .friends-column-section {
-    padding: 20px;
   }
 
   .tag-page-grid .post-card:nth-child(2n),
@@ -166,7 +167,25 @@
   }
 
   .hero-nav {
-    gap: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .hero-nav a,
+  .hero-nav .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.035);
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
   }
 
   .hero-lucky-popout-backdrop {
@@ -622,6 +641,14 @@ body[data-theme="light"] .hero-nav a {
   color: rgba(5, 7, 13, 0.7);
 }
 
+@media (max-width: 680px) {
+  body[data-theme="light"] .hero-nav a,
+  body[data-theme="light"] .hero-nav .theme-toggle {
+    border-color: rgba(15, 23, 42, 0.1);
+    background: rgba(255, 255, 255, 0.62);
+  }
+}
+
 body[data-theme="light"] .hero-nav a:hover {
   color: #05070d;
 }
@@ -984,11 +1011,9 @@ body[data-theme="light"] .home-art-section-title {
 body[data-theme="light"] .friends-page-hero,
 body[data-theme="light"] .friends-page-empty-card,
 body[data-theme="light"] .friends-page-overview-card,
-body[data-theme="light"] .friends-column-section,
 body[data-theme="light"] .friends-column-featured-card,
 body[data-theme="light"] .friends-column-compact-card,
 body[data-theme="light"] .friends-column-empty-card,
-body[data-theme="light"] .friends-column-portal,
 body[data-theme="light"] .friends-category-nav-card,
 body[data-theme="light"] .friends-category-featured-card,
 body[data-theme="light"] .friend-article-author-card,
@@ -1006,6 +1031,16 @@ body[data-theme="light"] .friend-article-author-role {
   background: rgba(255, 255, 255, 0.72);
 }
 
+body[data-theme="light"] .friends-author-profile {
+  border-color: rgba(15, 23, 42, 0.08);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(95, 125, 205, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(244, 247, 252, 0.62));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 12px 24px rgba(15, 23, 42, 0.06);
+}
+
 body[data-theme="light"] .friends-page-overview-label,
 body[data-theme="light"] .friends-column-label,
 body[data-theme="light"] .friend-article-author-label,
@@ -1015,11 +1050,10 @@ body[data-theme="light"] .friends-page-empty-label {
 
 body[data-theme="light"] .friends-page-overview-text,
 body[data-theme="light"] .friends-page-empty-text,
-body[data-theme="light"] .friends-column-description,
 body[data-theme="light"] .friends-column-featured-excerpt,
 body[data-theme="light"] .friends-column-compact-excerpt,
-body[data-theme="light"] .friends-column-portal span:last-child,
 body[data-theme="light"] .friends-author-chip,
+body[data-theme="light"] .friends-author-profile,
 body[data-theme="light"] .friend-article-author-bio,
 body[data-theme="light"] .friend-article-author-role {
   color: rgba(15, 23, 42, 0.72);
@@ -1254,22 +1288,7 @@ body[data-theme="light"] .english-home-exclamation {
 
 body[data-theme="light"] .hero-side-card-title {
   color: #dc2626;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.74)),
-    rgba(220, 38, 38, 0.03);
-  border-color: rgba(220, 38, 38, 0.14);
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.68);
   text-shadow: none;
-}
-
-body[data-theme="light"] .hero-side-card-title::before,
-body[data-theme="light"] .hero-side-card-title::after {
-  background:
-    linear-gradient(180deg, rgba(255, 221, 221, 0.9), rgba(255, 205, 205, 0.72)),
-    rgba(220, 38, 38, 0.05);
-  border-color: rgba(220, 38, 38, 0.14);
 }
 
 body[data-theme="light"] .hero-lucky-module {

@@ -50,11 +50,10 @@ function FriendsPage() {
             <p className="section-label">FRIENDS</p>
             <h1 className="tag-page-title">投稿</h1>
             <p className="tag-page-description">
-              这里收录朋友们投稿到 PlayxelD 的文章。
+              这里收录朋友们投稿到 Playxeld 的文章。
             </p>
             <p className="tag-page-subtitle">
-              当前共公开 {articles.length} 篇投稿文章。故事偏叙事，专题偏策划，
-              随笔则保留轻一些的个人表达。
+              当前共公开 {articles.length} 篇投稿文章。
             </p>
           </div>
 
@@ -119,101 +118,83 @@ function FriendsPage() {
                         index === 0 ? "friends-latest-card-emphasis" : ""
                       }`}
                     >
-                      <div className="friends-column-featured-top">
-                        <Link
-                          to={getFriendArticleCategoryPath(category)}
-                          className="friends-category-chip-link"
-                        >
-                          <span
-                            className="hero-tag-button friends-tag-chip"
-                            style={getTagStyle(category, theme)}
+                      <div className="friends-latest-card-main">
+                        <div className="friends-column-featured-top">
+                          <Link
+                            to={getFriendArticleCategoryPath(category)}
+                            className="friends-category-chip-link"
                           >
-                            {category}
-                          </span>
-                        </Link>
-                        <span className="friends-column-featured-date">
-                          {new Date(article.published_at).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      <h3 className="friends-column-featured-title">
-                        <Link to={`/friends/${article.slug}`}>{article.title}</Link>
-                      </h3>
-
-                      {article.excerpt && (
-                        <p className="friends-column-featured-excerpt">
-                          {article.excerpt}
-                        </p>
-                      )}
-
-                      <div className="friends-card-meta">
-                        <div className="friends-author-summary">
-                          {article.author_avatar_url ? (
-                            <img
-                              className="friends-author-avatar"
-                              src={article.author_avatar_url}
-                              alt={article.author_name}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <span className="friends-author-avatar friends-author-avatar-fallback">
-                              友
+                            <span
+                              className="hero-tag-button friends-tag-chip"
+                              style={getTagStyle(category, theme)}
+                            >
+                              {category}
                             </span>
-                          )}
-                          <span className="friends-author-chip">
-                            作者：{article.author_name}
+                          </Link>
+                          <span className="friends-column-featured-date">
+                            {new Date(article.published_at).toLocaleDateString()}
                           </span>
                         </div>
-                        {article.tags.length > 0 && (
-                          <div className="friends-tag-row">
-                            {sortTags(article.tags).map((tag) => (
-                              <span
-                                key={`${article.id}-${tag}`}
-                                className="hero-tag-button friends-tag-chip"
-                                style={getTagStyle(tag, theme)}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
+
+                        <h3 className="friends-column-featured-title">
+                          <Link to={`/friends/${article.slug}`}>{article.title}</Link>
+                        </h3>
+
+                        {article.excerpt && (
+                          <p className="friends-column-featured-excerpt">
+                            {article.excerpt}
+                          </p>
                         )}
+
+                        <Link to={`/friends/${article.slug}`} className="post-link">
+                          阅读全文 →
+                        </Link>
                       </div>
 
-                      <Link to={`/friends/${article.slug}`} className="post-link">
-                        阅读全文 →
-                      </Link>
+                      <div className="friends-latest-card-side">
+                        <div className="friends-card-meta">
+                          <div className="friends-author-summary">
+                            {article.author_avatar_url ? (
+                              <img
+                                className="friends-author-avatar"
+                                src={article.author_avatar_url}
+                                alt={article.author_name}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <span className="friends-author-avatar friends-author-avatar-fallback">
+                                友
+                              </span>
+                            )}
+                            <span className="friends-author-chip">
+                              作者：{article.author_name}
+                            </span>
+                          </div>
+                          <p className="friends-author-profile">
+                            {article.author_profile ??
+                              "PlayxelD Friends 投稿作者，分享自己的故事、观察和创作。"}
+                          </p>
+                          {article.tags.length > 0 && (
+                            <div className="friends-tag-row">
+                              {sortTags(article.tags).map((tag) => (
+                                <span
+                                  key={`${article.id}-${tag}`}
+                                  className="hero-tag-button friends-tag-chip"
+                                  style={getTagStyle(tag, theme)}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </article>
                   );
                 })}
               </div>
             </section>
 
-            <section className="friends-columns">
-              {friendArticleCategoryOrder.map((category) => {
-                const meta = friendArticleCategoryMeta[category];
-
-                return (
-                  <section key={category} className="friends-column-section">
-                    <header className="friends-column-header">
-                      <div>
-                        <p className="friends-column-label">{meta.englishLabel}</p>
-                        <h2 className="friends-column-title">{meta.title}</h2>
-                      </div>
-                    </header>
-
-                    <p className="friends-column-description">{meta.description}</p>
-
-                    <Link
-                      to={getFriendArticleCategoryPath(category)}
-                      className="friends-column-portal"
-                    >
-                      <span>进入 {meta.title} 栏目页</span>
-                      <span>查看这个分类的全部文章 →</span>
-                    </Link>
-                  </section>
-                );
-              })}
-            </section>
           </>
         )}
       </section>
