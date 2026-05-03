@@ -1,0 +1,1118 @@
+/* POSTS */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 22px;
+  margin-top: 26px;
+}
+
+.home-posts-grid .post-card {
+  opacity: 0;
+  animation: page-enter-fade-soft 0.56s cubic-bezier(0.2, 0.72, 0.22, 1) both;
+}
+
+.home-posts-grid .post-card:nth-child(1) {
+  animation-delay: 0.04s;
+}
+
+.home-posts-grid .post-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.home-posts-grid .post-card:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.home-posts-grid .post-card:nth-child(4) {
+  animation-delay: 0.22s;
+}
+
+.home-posts-grid .post-card:nth-child(5) {
+  animation-delay: 0.28s;
+}
+
+.home-posts-grid .post-card:nth-child(6) {
+  animation-delay: 0.34s;
+}
+
+.post-card {
+  grid-column: span 6;
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+/* 卡片整体动画 */
+.post-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+/* hover 效果 */
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* 标题动画 */
+.post-title {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.post-card:hover .post-title {
+  opacity: 0.9;
+  transform: translateX(4px);
+}
+
+/* Read more 动效 */
+.post-link {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.post-card:hover .post-link {
+  transform: translateX(6px);
+}
+
+.post-card-featured {
+  grid-column: span 12;
+  padding: 34px;
+}
+
+.post-meta {
+  margin-bottom: 12px;
+  font-size: 13px;
+  opacity: 0.52;
+  transform: translateY(-6px);
+}
+
+.post-title {
+  margin: 0 0 12px;
+  font-size: 32px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-family:
+    "Songti SC", "PingFang SC", "Hiragino Serif GB", "STSong", "Noto Serif SC",
+    "Source Han Serif SC", serif;
+}
+
+.post-title {
+  transition: opacity 0.2s ease;
+}
+
+.post-card:hover .post-title {
+  opacity: 0.85;
+}
+
+.post-card-featured .post-title {
+  font-size: clamp(36px, 4vw, 52px);
+}
+
+.post-page-section {
+  padding-top: 28px;
+  padding-bottom: 88px;
+}
+
+.post-detail-shell {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.post-detail-topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-detail-language-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(245, 247, 251, 0.74);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.post-detail-language-switch:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 247, 251, 0.9);
+}
+
+.post-detail-hero {
+  margin-bottom: 48px;
+  padding: 18px 0 0;
+  border-radius: 0;
+  border: 0;
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(163, 195, 244, 0.06), transparent),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  box-shadow: none;
+}
+
+.post-detail-enter-hero {
+  animation: page-enter-fade-up 0.68s cubic-bezier(0.2, 0.72, 0.22, 1) both;
+}
+
+.post-detail-title {
+  max-width: 780px;
+  margin: 0 auto 38px;
+  font-family:
+    "Songti SC", "PingFang SC", "Hiragino Serif GB", "STSong", "Noto Serif SC",
+    "Source Han Serif SC", serif;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-size: clamp(40px, 5.6vw, 68px);
+}
+
+.post-detail-excerpt {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.95;
+  color: rgba(245, 247, 251, 0.64);
+}
+
+.post-detail-intro {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.post-detail-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.post-detail-date-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(245, 247, 251, 0.62);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.post-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.post-detail-body {
+  padding: 0;
+}
+
+.post-detail-enter-body {
+  animation: page-enter-fade-soft 0.76s cubic-bezier(0.2, 0.72, 0.22, 1) both;
+  animation-delay: 0.14s;
+}
+
+.post-detail-loading {
+  margin: 0;
+  padding: 18px 0 0;
+}
+
+.route-loading {
+  min-height: 24px;
+}
+
+.page-loading-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 34px;
+  min-height: 24px;
+  padding: 4px 0;
+}
+
+.page-loading-placeholder::before,
+.page-loading-placeholder::after,
+.page-loading-placeholder span {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(120, 120, 120, 0.52);
+  opacity: 0.32;
+  animation: page-loading-pulse 1.2s ease-in-out infinite;
+}
+
+.dark .page-loading-placeholder::before,
+.dark .page-loading-placeholder::after,
+.dark .page-loading-placeholder span {
+  background: rgba(230, 230, 230, 0.48);
+}
+
+.page-loading-placeholder span {
+  animation-delay: 0.16s;
+}
+
+.page-loading-placeholder::after {
+  animation-delay: 0.32s;
+}
+
+@keyframes page-loading-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.88);
+    opacity: 0.18;
+  }
+
+  50% {
+    transform: translateY(-1px) scale(1);
+    opacity: 0.5;
+  }
+}
+
+.post-read-complete {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 44px;
+}
+
+.post-reading-rail {
+  position: fixed;
+  top: 50%;
+  right: 28px;
+  z-index: 18;
+  width: 1px;
+  height: min(36vh, 300px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-50%);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.post-reading-rail-progress {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(244, 248, 255, 0.9) 0%,
+      rgba(173, 200, 242, 0.72) 46%,
+      rgba(118, 144, 195, 0.32) 100%
+    );
+  transform-origin: top center;
+  transition: transform 0.16s ease-out;
+}
+
+.post-read-complete-button,
+.post-like-button,
+.post-share-button {
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(245, 247, 251, 0.74);
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
+}
+
+.post-read-complete-button:hover:not(:disabled),
+.post-like-button:hover,
+.post-share-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 247, 251, 0.9);
+}
+
+.post-read-complete-button:active:not(:disabled),
+.post-like-button:active:not(:disabled),
+.post-share-button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.988);
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.05), transparent 54%),
+    rgba(255, 255, 255, 0.025);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.16),
+    inset 0 8px 18px rgba(255, 255, 255, 0.02);
+  filter: saturate(0.94) brightness(0.96);
+}
+
+.post-like-button {
+  min-width: 120px;
+  padding: 10px 16px;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(245, 247, 251, 0.3);
+}
+
+.post-like-icon {
+  font-family:
+    "Times New Roman", "Georgia", "Palatino Linotype", serif;
+  position: relative;
+  top: -0.03em;
+  font-size: 1.38em;
+  line-height: 1;
+  color: currentColor;
+  font-variant-emoji: text;
+  -webkit-font-smoothing: antialiased;
+}
+
+.post-like-button.is-liked .post-like-icon {
+  font-size: 1.24em;
+}
+
+.post-like-button.is-liked {
+  border-color: rgba(255, 120, 138, 0.3);
+  background:
+    radial-gradient(circle at 28% 26%, rgba(255, 255, 255, 0.16), transparent 38%),
+    rgba(255, 120, 138, 0.1);
+  color: #ff6d85;
+  box-shadow: 0 10px 24px rgba(255, 109, 133, 0.12);
+}
+
+.post-read-complete-button.is-complete {
+  border-color: rgba(163, 195, 244, 0.24);
+  background:
+    radial-gradient(circle at 28% 26%, rgba(255, 255, 255, 0.14), transparent 38%),
+    rgba(163, 195, 244, 0.08);
+  color: #d7e6fb;
+  box-shadow: 0 10px 24px rgba(163, 195, 244, 0.08);
+  cursor: default;
+}
+
+.post-share-feedback {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(245, 247, 251, 0.56);
+}
+
+.post-mobile-back-to-top {
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(5, 7, 13, 0.34);
+  color: rgba(245, 247, 251, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.post-mobile-back-to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.post-mobile-back-to-top:hover {
+  background: rgba(5, 7, 13, 0.46);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.post-page-en .post-detail-title {
+  font-family:
+    "Baskerville", "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+    "Georgia", "Times New Roman", serif;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.046em;
+  max-width: 700px;
+  text-wrap: balance;
+}
+
+.post-page-en .post-detail-excerpt {
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Georgia",
+    "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 1.82;
+  letter-spacing: 0;
+  color: rgba(245, 247, 251, 0.68);
+}
+
+.post-content {
+  max-width: 780px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 2;
+  color: rgba(245, 247, 251, 0.8);
+}
+
+.post-page-en .post-content {
+  max-width: 740px;
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Georgia",
+    "Times New Roman", serif;
+  font-size: 21px;
+  line-height: 1.82;
+  letter-spacing: 0;
+}
+
+.post-content > *:first-child {
+  margin-top: 0;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3 {
+  position: relative;
+  font-family:
+    "Songti SC", "PingFang SC", "Hiragino Serif GB", "STSong", "Noto Serif SC",
+    "Source Han Serif SC", serif;
+  line-height: 1.16;
+  letter-spacing: -0.03em;
+  color: #edf4ff;
+}
+
+.post-page-en .post-content h1,
+.post-page-en .post-content h2,
+.post-page-en .post-content h3 {
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Georgia",
+    "Times New Roman", serif;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.post-content h1 {
+  margin: 54px 0 20px;
+  font-size: clamp(32px, 3.8vw, 42px);
+}
+
+.post-content h2 {
+  margin: 46px 0 18px;
+  font-size: clamp(27px, 2.8vw, 34px);
+}
+
+.post-content h3 {
+  margin: 36px 0 16px;
+  font-size: clamp(22px, 2.2vw, 28px);
+}
+
+.post-content-heading-h2::before,
+.post-content-heading-h3::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 0.42em;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(163, 195, 244, 0.12);
+  box-shadow: 0 0 0 1px rgba(163, 195, 244, 0.05);
+  opacity: 0;
+  transform: translateY(1px) scale(0.82);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.post-content-heading-h2.is-active::before,
+.post-content-heading-h3.is-active::before {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  background: rgba(210, 227, 255, 0.62);
+  box-shadow:
+    0 0 0 1px rgba(163, 195, 244, 0.12),
+    0 0 8px rgba(163, 195, 244, 0.08);
+}
+
+.post-content p,
+.post-content ul,
+.post-content ol,
+.post-content blockquote,
+.post-content pre {
+  margin: 24px 0;
+}
+
+.post-content > p:first-of-type {
+  margin-top: 4px;
+  font-size: 20px;
+  line-height: 2.02;
+  color: rgba(245, 247, 251, 0.9);
+}
+
+.post-page-en .post-content > p:first-of-type {
+  font-size: 23px;
+  line-height: 1.78;
+}
+
+.post-content > p:first-of-type::first-letter {
+  font-size: 1.34em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #f4f8ff;
+}
+
+.post-page-en .post-content > p:first-of-type::first-letter {
+  font-size: 4.6em;
+  line-height: 0.78;
+  margin-right: 0.08em;
+  letter-spacing: -0.02em;
+}
+
+.post-content ul,
+.post-content ol {
+  padding-left: 26px;
+}
+
+.post-content li {
+  margin: 10px 0;
+}
+
+.post-content a {
+  color: #b8d0f3;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(184, 208, 243, 0.24);
+}
+
+.post-content strong {
+  color: #f5f9ff;
+  font-weight: 700;
+}
+
+.post-page-en .post-detail-date-badge,
+.post-page-en .post-detail-language-switch,
+.post-page-en .post-read-complete-button,
+.post-page-en .post-like-button,
+.post-page-en .post-share-button,
+.post-page-en .post-neighbor-label,
+.post-page-en .post-related-label {
+  font-family:
+    "Avenir Next", "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+}
+
+.post-continue-reading {
+  max-width: 780px;
+  margin: 80px auto 0;
+  padding-top: 34px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.post-continue-reading-header {
+  display: block;
+  margin-bottom: 22px;
+}
+
+.post-continue-reading-title {
+  margin: 0;
+  font-size: clamp(30px, 4.2vw, 42px);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+  font-family:
+    "Songti SC", "PingFang SC", "Hiragino Serif GB", "STSong", "Noto Serif SC",
+    "Source Han Serif SC", serif;
+  font-weight: 600;
+  color: rgba(245, 247, 251, 0.94);
+}
+
+.post-neighbor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.post-neighbor-card,
+.post-related-card {
+  padding: 24px 24px 22px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(163, 195, 244, 0.08), transparent),
+    rgba(255, 255, 255, 0.03);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.post-neighbor-card:hover,
+.post-related-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.14);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(163, 195, 244, 0.1), transparent),
+    rgba(255, 255, 255, 0.04);
+}
+
+.post-neighbor-label,
+.post-related-label,
+.post-related-meta {
+  margin: 0 0 12px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 251, 0.44);
+}
+
+.post-neighbor-title,
+.post-related-title {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.16;
+  letter-spacing: -0.04em;
+  font-family:
+    "Songti SC", "PingFang SC", "Hiragino Serif GB", "STSong", "Noto Serif SC",
+    "Source Han Serif SC", serif;
+}
+
+.post-related-title {
+  font-size: clamp(18px, 2vw, 24px);
+}
+
+.post-neighbor-title a,
+.post-related-title a {
+  transition: opacity 0.18s ease;
+}
+
+.post-neighbor-title a:hover,
+.post-related-title a:hover {
+  opacity: 0.82;
+}
+
+.post-neighbor-excerpt,
+.post-related-excerpt {
+  margin: 16px 0 0;
+  color: rgba(245, 247, 251, 0.62);
+  line-height: 1.82;
+}
+
+.post-neighbor-link,
+.post-related-link {
+  margin-top: 18px;
+  display: inline-flex;
+}
+
+.post-related-block {
+  margin-top: 26px;
+}
+
+.post-related-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.post-content blockquote {
+  padding: 16px 20px;
+  border-left: 2px solid rgba(163, 195, 244, 0.34);
+  border-radius: 0 18px 18px 0;
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(245, 247, 251, 0.68);
+}
+
+.post-content code {
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef4ff;
+  font-size: 0.9em;
+}
+
+.post-content pre {
+  overflow-x: auto;
+  border-radius: 20px;
+}
+
+.post-content pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.comments-section {
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 88px;
+  padding-top: 34px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comments-title {
+  margin-bottom: 16px;
+  font-size: clamp(30px, 4.2vw, 42px);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+  font-family:
+    "Songti SC", "PingFang SC", "Hiragino Serif GB", "STSong", "Noto Serif SC",
+    "Source Han Serif SC", serif;
+  font-weight: 600;
+  color: rgba(245, 247, 251, 0.94);
+}
+
+.comments-intro {
+  margin-bottom: 0;
+  max-width: 720px;
+}
+
+.comments-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 28px;
+  align-items: start;
+}
+
+.comments-list {
+  display: grid;
+  gap: 18px;
+}
+
+.comments-state {
+  margin: 0;
+  padding: 26px 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(245, 247, 251, 0.74);
+  line-height: 1.8;
+}
+
+.comment-card {
+  padding: 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.comment-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.comment-author {
+  font-size: 16px;
+  font-weight: 600;
+  color: #d7e1f1;
+}
+
+.comment-date {
+  font-size: 13px;
+  color: rgba(245, 247, 251, 0.5);
+}
+
+.comment-content {
+  margin: 0;
+  color: rgba(245, 247, 251, 0.82);
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.comment-reply-context,
+.comment-replies-label {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 251, 0.46);
+}
+
+.comment-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 18px;
+}
+
+.comment-reply-button,
+.comment-reply-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9cb6de;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.comment-reply-button:hover,
+.comment-reply-cancel:hover {
+  color: #c7d8f2;
+}
+
+.comment-replies {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding-left: 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comment-replies-root {
+  padding-left: 22px;
+}
+
+.comment-replies-nested {
+  padding-left: 14px;
+}
+
+.comment-reply-card {
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.comment-form {
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(
+      120% 120% at 100% 0%,
+      rgba(163, 195, 244, 0.1),
+      transparent
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.02)
+    );
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.comment-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.comment-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.comment-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.comment-replying {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.comment-replying-text {
+  font-size: 14px;
+  color: rgba(245, 247, 251, 0.76);
+}
+
+.comment-field-label {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 251, 0.52);
+}
+
+.comment-input,
+.comment-textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  padding: 14px 16px;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.comment-input::placeholder,
+.comment-textarea::placeholder {
+  color: rgba(245, 247, 251, 0.38);
+}
+
+.comment-input:focus,
+.comment-textarea:focus {
+  border-color: rgba(199, 216, 242, 0.48);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(199, 216, 242, 0.08);
+}
+
+.comment-textarea {
+  min-height: 144px;
+  resize: vertical;
+}
+
+.comment-form-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.comment-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8eef8;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.comment-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.comment-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.comment-feedback {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(245, 247, 251, 0.72);
+}
+
+.post-title a {
+  font-family: inherit;
+  transition: opacity 0.18s ease;
+}
+
+.post-title a:hover {
+  opacity: 0.84;
+}
+
+.post-excerpt {
+  margin: 0;
+  max-width: 78ch;
+  font-size: 18px;
+  line-height: 1.85;
+  color: rgba(245, 247, 251, 0.75);
+}
+
+.post-link {
+  display: inline-block;
+  margin-top: 18px;
+  font-weight: 600;
+  color: #c7d8f2;
+}
+
+.post-link:hover {
+  color: #e2ecfa;
+}
+
+/* LARGE SCREENS */
+@media (min-width: 1700px) {
+  .hero > *,
+  .section {
+    width: min(1760px, 100%);
+  }
+
+  .hero-title {
+    max-width: 980px;
+  }
+}
+

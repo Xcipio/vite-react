@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import {
   createComment,
   deleteOwnComment,
@@ -10,6 +10,13 @@ import {
   sendReplyNotification,
 } from "../lib/notifications";
 import { Comment } from "../types/comment";
+import CommentItem from "../features/comments/CommentItem";
+import {
+  readOwnedCommentsMap,
+  removeOwnedCommentId,
+  saveOwnedCommentId,
+} from "../features/comments/commentStorage";
+import { buildCommentTree, CommentNode } from "../features/comments/commentTree";
 
 type CommentsSectionProps = {
   postSlug: string;
@@ -18,154 +25,9 @@ type CommentsSectionProps = {
   variant?: "default" | "friends";
 };
 
-type CommentNode = Comment & {
-  replies: CommentNode[];
-};
-
 const COMMENT_SUBMIT_COOLDOWN_MS = 30_000;
 const MIN_COMMENT_FILL_TIME_MS = 2_500;
 const COMMENT_COOLDOWN_KEY = "comment-submit-last-at";
-const OWNED_COMMENTS_STORAGE_KEY = "owned-comments";
-
-function readOwnedCommentsMap() {
-  const stored = window.localStorage.getItem(OWNED_COMMENTS_STORAGE_KEY);
-  return stored ? (JSON.parse(stored) as Record<string, number[]>) : {};
-}
-
-function saveOwnedCommentId(postSlug: string, commentId: number) {
-  const nextMap = readOwnedCommentsMap();
-  const existingIds = new Set(nextMap[postSlug] ?? []);
-  existingIds.add(commentId);
-  nextMap[postSlug] = Array.from(existingIds);
-  window.localStorage.setItem(OWNED_COMMENTS_STORAGE_KEY, JSON.stringify(nextMap));
-}
-
-function removeOwnedCommentId(postSlug: string, commentId: number) {
-  const nextMap = readOwnedCommentsMap();
-  nextMap[postSlug] = (nextMap[postSlug] ?? []).filter((id) => id !== commentId);
-  window.localStorage.setItem(OWNED_COMMENTS_STORAGE_KEY, JSON.stringify(nextMap));
-}
-
-function buildCommentTree(comments: Comment[], parentId: number | null = null): CommentNode[] {
-  return comments
-    .filter((comment) => comment.parent_id === parentId)
-    .map((comment) => ({
-      ...comment,
-      replies: buildCommentTree(comments, comment.id),
-    }));
-}
-
-function findCommentById(comments: CommentNode[], commentId: number | null): CommentNode | null {
-  if (commentId === null) {
-    return null;
-  }
-
-  for (const comment of comments) {
-    if (comment.id === commentId) {
-      return comment;
-    }
-
-    const nestedMatch = findCommentById(comment.replies, commentId);
-
-    if (nestedMatch) {
-      return nestedMatch;
-    }
-  }
-
-  return null;
-}
-
-function CommentItem({
-  comment,
-  depth,
-  rootComments,
-  onReply,
-  onDelete,
-  deletingCommentId,
-  ownedCommentIds,
-  language,
-}: {
-  comment: CommentNode;
-  depth: number;
-  rootComments: CommentNode[];
-  onReply: (comment: Comment) => void;
-  onDelete: (comment: Comment) => void;
-  deletingCommentId: number | null;
-  ownedCommentIds: Set<number>;
-  language: "zh" | "en";
-}) {
-  const nestingLevel = depth > 1 ? "comment-replies-nested" : "comment-replies-root";
-  const replyTarget = findCommentById(rootComments, comment.parent_id);
-  const isOwnComment = ownedCommentIds.has(comment.id);
-
-  return (
-    <article className={depth === 0 ? "comment-card" : "comment-reply-card"}>
-      <div className="comment-meta">
-        <strong className="comment-author">{comment.author_name}</strong>
-        <span className="comment-date">
-          {new Date(comment.created_at).toLocaleDateString()}
-        </span>
-      </div>
-
-      {replyTarget && (
-        <p className="comment-reply-context">
-          {language === "en"
-            ? `${comment.author_name} replying to ${replyTarget.author_name}`
-            : `${comment.author_name} 回复 ${replyTarget.author_name}`}
-        </p>
-      )}
-
-      <p className="comment-content">{comment.content}</p>
-
-      <div className="comment-actions">
-        <button
-          className="comment-reply-button"
-          type="button"
-          onClick={() => onReply(comment)}
-        >
-          {language === "en" ? "Reply" : "回复"}
-        </button>
-        {isOwnComment && (
-          <button
-            className="comment-reply-cancel"
-            type="button"
-            onClick={() => onDelete(comment)}
-            disabled={deletingCommentId === comment.id}
-          >
-            {deletingCommentId === comment.id
-              ? language === "en"
-                ? "Deleting..."
-                : "删除中..."
-              : language === "en"
-                ? "Delete"
-                : "删除"}
-          </button>
-        )}
-      </div>
-
-      {comment.replies.length > 0 && (
-        <div className={`comment-replies ${nestingLevel}`}>
-          <p className="comment-replies-label">
-            {language === "en" ? "Replies" : "回复"}
-          </p>
-          {comment.replies.map((reply) => (
-            <CommentItem
-              key={reply.id}
-              comment={reply}
-              depth={Math.min(depth + 1, 2)}
-              rootComments={rootComments}
-              onReply={onReply}
-              onDelete={onDelete}
-              deletingCommentId={deletingCommentId}
-              ownedCommentIds={ownedCommentIds}
-              language={language}
-            />
-          ))}
-        </div>
-      )}
-    </article>
-  );
-}
 
 function CommentsSection({
   postSlug,
@@ -247,7 +109,7 @@ function CommentsSection({
         : "评论已删除。",
   };
 
-  const refreshComments = async () => {
+  const refreshComments = useCallback(async () => {
     const { data, error } = await fetchApprovedComments(postSlug);
 
     if (error) {
@@ -258,7 +120,7 @@ function CommentsSection({
 
     setComments(buildCommentTree(data ?? []));
     setErrorMessage(null);
-  };
+  }, [copy.loadError, postSlug]);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -269,7 +131,7 @@ function CommentsSection({
     };
 
     void loadComments();
-  }, [postSlug]);
+  }, [postSlug, refreshComments]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

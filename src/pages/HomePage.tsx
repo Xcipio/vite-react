@@ -1,105 +1,37 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import WeatherBadge from "../components/WeatherBadge";
+import useContactBubbles from "../features/home/useContactBubbles";
+import useHomeData from "../features/home/useHomeData";
 import { useTheme } from "../hooks/useTheme";
-import { fetchPublishedArtworks } from "../lib/artworks";
 import { pickDailyArtworks } from "../lib/dailyArtworkSelection";
-import {
-  fetchPublishedGames,
-  isGamePlayable,
-  pickWeightedRandomGame,
-} from "../lib/games";
-import { fetchPublishedFriendArticles } from "../lib/friendArticles";
-import { fetchPublishedPosts } from "../lib/posts";
+import { isGamePlayable } from "../lib/games";
 import { getPostTags, getTagStyle, sortTags } from "../lib/tags";
-import { Artwork } from "../types/artwork";
-import { FriendArticle } from "../types/friendArticle";
-import { Game } from "../types/game";
-import { Post } from "../types/post";
-
-type ContactBubbleKey = "small" | "medium" | "large";
-
-type ContactBubblePosition = {
-  x: number;
-  y: number;
-};
-
-type RuntimeBubble = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  radius: number;
-  speed: number;
-};
-
-type ContactBubbleLayout = {
-  size: number;
-  radius: number;
-  speed: number;
-  startRight: number;
-  startBottom: number;
-};
-
-const CONTACT_BUBBLE_LAYOUTS: Record<ContactBubbleKey, ContactBubbleLayout> = {
-  small: {
-    size: 34,
-    radius: 12,
-    speed: 0.84,
-    startRight: 22,
-    startBottom: 18,
-  },
-  medium: {
-    size: 44,
-    radius: 17,
-    speed: 0.64,
-    startRight: 118,
-    startBottom: 28,
-  },
-  large: {
-    size: 56,
-    radius: 21,
-    speed: 0.46,
-    startRight: 72,
-    startBottom: 68,
-  },
-};
 
 function HomePage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [friendArticles, setFriendArticles] = useState<FriendArticle[]>([]);
-  const [artworks, setArtworks] = useState<Artwork[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
-  const [featuredGame, setFeaturedGame] = useState<Game | null>(null);
+  const {
+    artworks,
+    featuredGame,
+    friendArticles,
+    games,
+    loading,
+    posts,
+    refreshFeaturedGame,
+  } = useHomeData();
   const [showGamePopout, setShowGamePopout] = useState(false);
-  const [contactBubbleBurstVersion, setContactBubbleBurstVersion] = useState(0);
-  const [contactBubbleBursting, setContactBubbleBursting] = useState(false);
-  const [contactBubbleLargeBurstVersion, setContactBubbleLargeBurstVersion] =
-    useState(0);
-  const [contactBubbleLargeBursting, setContactBubbleLargeBursting] =
-    useState(false);
-  const [contactBubbleMediumBurstVersion, setContactBubbleMediumBurstVersion] =
-    useState(0);
-  const [contactBubbleMediumBursting, setContactBubbleMediumBursting] =
-    useState(false);
-  const [contactBubbleMotionEnabled, setContactBubbleMotionEnabled] =
-    useState(false);
-  const [contactBubblePositions, setContactBubblePositions] = useState<
-    Record<ContactBubbleKey, ContactBubblePosition>
-  >({
-    small: { x: 0, y: 0 },
-    medium: { x: 0, y: 0 },
-    large: { x: 0, y: 0 },
-  });
-  const [loading, setLoading] = useState(true);
+  const {
+    burstBubble,
+    bursting: contactBubbleBursting,
+    burstVersions: contactBubbleBurstVersions,
+    contactCardRef,
+    motionEnabled: contactBubbleMotionEnabled,
+    positions: contactBubblePositions,
+  } = useContactBubbles();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const contactCardRef = useRef<HTMLDivElement | null>(null);
-  const contactBubbleRuntimeRef = useRef<Record<ContactBubbleKey, RuntimeBubble> | null>(null);
 
   const postsPerPage = 6;
   const heroLeadText = "All we need is";
@@ -108,115 +40,6 @@ function HomePage() {
     previous: "上一页",
     next: "下一页",
     last: "末页",
-  };
-
-  const respawnContactBubble = (key: ContactBubbleKey) => {
-    const runtime = contactBubbleRuntimeRef.current;
-    const card = contactCardRef.current;
-    if (!runtime || !card) {
-      return;
-    }
-
-    const bubble = runtime[key];
-    const width = card.clientWidth;
-    const height = card.clientHeight;
-    if (!width || !height) {
-      return;
-    }
-
-    const maxX = Math.max(0, width - bubble.size);
-    const maxY = Math.max(0, height - bubble.size);
-    const otherKeys = (Object.keys(runtime) as ContactBubbleKey[]).filter(
-      (candidate) => candidate !== key,
-    );
-
-    let nextX = bubble.x;
-    let nextY = bubble.y;
-
-    for (let attempt = 0; attempt < 40; attempt += 1) {
-      const candidateX = Math.random() * maxX;
-      const candidateY = Math.random() * maxY;
-      const isOverlapping = otherKeys.some((otherKey) => {
-        const otherBubble = runtime[otherKey];
-        const dx =
-          otherBubble.x + otherBubble.size / 2 - (candidateX + bubble.size / 2);
-        const dy =
-          otherBubble.y + otherBubble.size / 2 - (candidateY + bubble.size / 2);
-        const minimumDistance = otherBubble.radius + bubble.radius + 4;
-        return Math.hypot(dx, dy) < minimumDistance;
-      });
-
-      if (!isOverlapping) {
-        nextX = candidateX;
-        nextY = candidateY;
-        break;
-      }
-    }
-
-    bubble.x = nextX;
-    bubble.y = nextY;
-
-    const angle = Math.random() * Math.PI * 2;
-    bubble.vx = Math.cos(angle) * bubble.speed;
-    bubble.vy = Math.sin(angle) * bubble.speed;
-
-    setContactBubblePositions({
-      small: { x: runtime.small.x, y: runtime.small.y },
-      medium: { x: runtime.medium.x, y: runtime.medium.y },
-      large: { x: runtime.large.x, y: runtime.large.y },
-    });
-  };
-
-  useEffect(() => {
-    const loadHomeData = async () => {
-      const [
-        { data: postData, error: postError },
-        friendArticleData,
-        { data: artworkData, error: artworkError },
-        { data: gameData, error: gameError },
-      ] = await Promise.all([
-        fetchPublishedPosts(),
-        fetchPublishedFriendArticles(),
-        fetchPublishedArtworks(),
-        fetchPublishedGames(),
-      ]);
-
-      if (postError) {
-        console.error(postError);
-      } else {
-        setPosts(postData ?? []);
-      }
-
-      if (artworkError) {
-        console.error(artworkError);
-      } else {
-        setArtworks(artworkData ?? []);
-      }
-
-      setFriendArticles(friendArticleData.data ?? []);
-
-      if (friendArticleData.error) {
-        console.error(friendArticleData.error);
-      }
-
-      if (gameError) {
-        console.error(gameError);
-      } else {
-        const publishedGames = gameData ?? [];
-        setGames(publishedGames);
-        setFeaturedGame(pickWeightedRandomGame(publishedGames));
-      }
-
-      setLoading(false);
-    };
-
-    loadHomeData();
-  }, []);
-
-  const refreshFeaturedGame = () => {
-    setFeaturedGame((currentGame) =>
-      pickWeightedRandomGame(games, currentGame?.id),
-    );
   };
 
   const latestPost = posts[0] ?? null;
@@ -258,272 +81,6 @@ function HomePage() {
       document.body.style.overflow = overflow;
     };
   }, [showGamePopout]);
-
-  useEffect(() => {
-    if (!contactBubbleBursting) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setContactBubbleBursting(false);
-      respawnContactBubble("small");
-    }, 720);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [contactBubbleBursting]);
-
-  useEffect(() => {
-    if (!contactBubbleLargeBursting) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setContactBubbleLargeBursting(false);
-      respawnContactBubble("large");
-    }, 720);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [contactBubbleLargeBursting]);
-
-  useEffect(() => {
-    if (!contactBubbleMediumBursting) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setContactBubbleMediumBursting(false);
-      respawnContactBubble("medium");
-    }, 720);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [contactBubbleMediumBursting]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia(
-      "(max-width: 1100px), (prefers-reduced-motion: reduce)",
-    );
-
-    let frameId = 0;
-    let lastTime = 0;
-
-    const randomVelocity = (speed: number) => {
-      const angle = Math.random() * Math.PI * 2;
-      return {
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-      };
-    };
-
-    const setVelocityDirection = (
-      bubble: RuntimeBubble,
-      angle: number,
-      speed = bubble.speed,
-    ) => {
-      bubble.vx = Math.cos(angle) * speed;
-      bubble.vy = Math.sin(angle) * speed;
-    };
-
-    const jitterVelocity = (bubble: RuntimeBubble) => {
-      const angle = Math.atan2(bubble.vy, bubble.vx) + (Math.random() - 0.5) * 0.36;
-      setVelocityDirection(bubble, angle);
-    };
-
-    const updateState = (bubbles: Record<ContactBubbleKey, RuntimeBubble>) => {
-      setContactBubblePositions({
-        small: { x: bubbles.small.x, y: bubbles.small.y },
-        medium: { x: bubbles.medium.x, y: bubbles.medium.y },
-        large: { x: bubbles.large.x, y: bubbles.large.y },
-      });
-    };
-
-    const initializeRuntime = () => {
-      const card = contactCardRef.current;
-      if (!card || mediaQuery.matches) {
-        contactBubbleRuntimeRef.current = null;
-        setContactBubbleMotionEnabled(false);
-        return false;
-      }
-
-      const width = card.clientWidth;
-      const height = card.clientHeight;
-      if (!width || !height) {
-        return false;
-      }
-
-      const smallLayout = CONTACT_BUBBLE_LAYOUTS.small;
-      const mediumLayout = CONTACT_BUBBLE_LAYOUTS.medium;
-      const largeLayout = CONTACT_BUBBLE_LAYOUTS.large;
-      const smallVelocity = randomVelocity(smallLayout.speed);
-      const mediumVelocity = randomVelocity(mediumLayout.speed);
-      const largeVelocity = randomVelocity(largeLayout.speed);
-
-      const runtime: Record<ContactBubbleKey, RuntimeBubble> = {
-        small: {
-          x: width - smallLayout.startRight - smallLayout.size,
-          y: height - smallLayout.startBottom - smallLayout.size,
-          size: smallLayout.size,
-          radius: smallLayout.radius,
-          speed: smallLayout.speed,
-          ...smallVelocity,
-        },
-        medium: {
-          x: width - mediumLayout.startRight - mediumLayout.size,
-          y: height - mediumLayout.startBottom - mediumLayout.size,
-          size: mediumLayout.size,
-          radius: mediumLayout.radius,
-          speed: mediumLayout.speed,
-          ...mediumVelocity,
-        },
-        large: {
-          x: width - largeLayout.startRight - largeLayout.size,
-          y: height - largeLayout.startBottom - largeLayout.size,
-          size: largeLayout.size,
-          radius: largeLayout.radius,
-          speed: largeLayout.speed,
-          ...largeVelocity,
-        },
-      };
-
-      const keys = Object.keys(runtime) as ContactBubbleKey[];
-      for (let i = 0; i < keys.length; i += 1) {
-        for (let j = i + 1; j < keys.length; j += 1) {
-          const bubbleA = runtime[keys[i]];
-          const bubbleB = runtime[keys[j]];
-          const dx = bubbleB.x + bubbleB.size / 2 - (bubbleA.x + bubbleA.size / 2);
-          const dy = bubbleB.y + bubbleB.size / 2 - (bubbleA.y + bubbleA.size / 2);
-          const distance = Math.hypot(dx, dy);
-          const minimumDistance = bubbleA.radius + bubbleB.radius + 8;
-
-          if (distance < minimumDistance) {
-            bubbleB.x = Math.max(0, bubbleB.x + (minimumDistance - distance));
-          }
-        }
-      }
-
-      contactBubbleRuntimeRef.current = runtime;
-      setContactBubbleMotionEnabled(true);
-      updateState(runtime);
-      return true;
-    };
-
-    const step = (timestamp: number) => {
-      const runtime = contactBubbleRuntimeRef.current;
-      if (!runtime) {
-        frameId = window.requestAnimationFrame(step);
-        return;
-      }
-
-      const card = contactCardRef.current;
-      if (!card) {
-        frameId = window.requestAnimationFrame(step);
-        return;
-      }
-
-      const width = card.clientWidth;
-      const height = card.clientHeight;
-      const delta = lastTime ? Math.min((timestamp - lastTime) / 16.6667, 2.2) : 1;
-      lastTime = timestamp;
-
-      (Object.keys(runtime) as ContactBubbleKey[]).forEach((key) => {
-        const bubble = runtime[key];
-        bubble.x += bubble.vx * delta;
-        bubble.y += bubble.vy * delta;
-
-        const maxX = Math.max(0, width - bubble.size);
-        const maxY = Math.max(0, height - bubble.size);
-
-        if (bubble.x <= 0) {
-          bubble.x = 0;
-          bubble.vx = Math.abs(bubble.vx);
-          jitterVelocity(bubble);
-        } else if (bubble.x >= maxX) {
-          bubble.x = maxX;
-          bubble.vx = -Math.abs(bubble.vx);
-          jitterVelocity(bubble);
-        }
-
-        if (bubble.y <= 0) {
-          bubble.y = 0;
-          bubble.vy = Math.abs(bubble.vy);
-          jitterVelocity(bubble);
-        } else if (bubble.y >= maxY) {
-          bubble.y = maxY;
-          bubble.vy = -Math.abs(bubble.vy);
-          jitterVelocity(bubble);
-        }
-      });
-
-      const keys = Object.keys(runtime) as ContactBubbleKey[];
-      for (let i = 0; i < keys.length; i += 1) {
-        for (let j = i + 1; j < keys.length; j += 1) {
-          const bubbleA = runtime[keys[i]];
-          const bubbleB = runtime[keys[j]];
-          const centerDx =
-            bubbleB.x + bubbleB.size / 2 - (bubbleA.x + bubbleA.size / 2);
-          const centerDy =
-            bubbleB.y + bubbleB.size / 2 - (bubbleA.y + bubbleA.size / 2);
-          const distance = Math.hypot(centerDx, centerDy);
-          const minimumDistance = bubbleA.radius + bubbleB.radius + 2;
-
-          if (distance < minimumDistance) {
-            const normalX = distance > 0 ? centerDx / distance : 1;
-            const normalY = distance > 0 ? centerDy / distance : 0;
-            const overlap = minimumDistance - distance;
-
-            bubbleA.x -= normalX * (overlap / 2);
-            bubbleA.y -= normalY * (overlap / 2);
-            bubbleB.x += normalX * (overlap / 2);
-            bubbleB.y += normalY * (overlap / 2);
-
-            const relativeVelocityX = bubbleB.vx - bubbleA.vx;
-            const relativeVelocityY = bubbleB.vy - bubbleA.vy;
-            const separatingSpeed =
-              relativeVelocityX * normalX + relativeVelocityY * normalY;
-
-            if (separatingSpeed < 0) {
-              const impulse = -separatingSpeed;
-              bubbleA.vx -= impulse * normalX;
-              bubbleA.vy -= impulse * normalY;
-              bubbleB.vx += impulse * normalX;
-              bubbleB.vy += impulse * normalY;
-            }
-
-            jitterVelocity(bubbleA);
-            jitterVelocity(bubbleB);
-          }
-        }
-      }
-
-      updateState(runtime);
-      frameId = window.requestAnimationFrame(step);
-    };
-
-    const handleViewportChange = () => {
-      lastTime = 0;
-      initializeRuntime();
-    };
-
-    handleViewportChange();
-    frameId = window.requestAnimationFrame(step);
-    mediaQuery.addEventListener("change", handleViewportChange);
-    window.addEventListener("resize", handleViewportChange);
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      mediaQuery.removeEventListener("change", handleViewportChange);
-      window.removeEventListener("resize", handleViewportChange);
-    };
-  }, []);
 
   return (
     <div className="page">
@@ -1044,11 +601,10 @@ function HomePage() {
             >
               <button
                 className={`contact-bubble-button ${
-                  contactBubbleBursting ? "is-bursting" : ""
+                  contactBubbleBursting.small ? "is-bursting" : ""
                 }`}
                 onClick={() => {
-                  setContactBubbleBurstVersion((version) => version + 1);
-                  setContactBubbleBursting(true);
+                  burstBubble("small");
                 }}
                 type="button"
                 aria-label="捏一下泡泡"
@@ -1056,9 +612,9 @@ function HomePage() {
                 <span className="contact-bubble-orb" aria-hidden="true">
                   <span className="contact-bubble-highlight" />
                 </span>
-                {contactBubbleBurstVersion > 0 && (
+                {contactBubbleBurstVersions.small > 0 && (
                   <span
-                    key={contactBubbleBurstVersion}
+                    key={contactBubbleBurstVersions.small}
                     className="contact-bubble-burst"
                     aria-hidden="true"
                   >
@@ -1084,11 +640,10 @@ function HomePage() {
             >
               <button
                 className={`contact-bubble-button contact-bubble-button-medium ${
-                  contactBubbleMediumBursting ? "is-bursting" : ""
+                  contactBubbleBursting.medium ? "is-bursting" : ""
                 }`}
                 onClick={() => {
-                  setContactBubbleMediumBurstVersion((version) => version + 1);
-                  setContactBubbleMediumBursting(true);
+                  burstBubble("medium");
                 }}
                 type="button"
                 aria-label="捏一下中泡泡"
@@ -1099,9 +654,9 @@ function HomePage() {
                 >
                   <span className="contact-bubble-highlight contact-bubble-highlight-medium" />
                 </span>
-                {contactBubbleMediumBurstVersion > 0 && (
+                {contactBubbleBurstVersions.medium > 0 && (
                   <span
-                    key={contactBubbleMediumBurstVersion}
+                    key={contactBubbleBurstVersions.medium}
                     className="contact-bubble-burst contact-bubble-burst-medium"
                     aria-hidden="true"
                   >
@@ -1127,11 +682,10 @@ function HomePage() {
             >
               <button
                 className={`contact-bubble-button contact-bubble-button-large ${
-                  contactBubbleLargeBursting ? "is-bursting" : ""
+                  contactBubbleBursting.large ? "is-bursting" : ""
                 }`}
                 onClick={() => {
-                  setContactBubbleLargeBurstVersion((version) => version + 1);
-                  setContactBubbleLargeBursting(true);
+                  burstBubble("large");
                 }}
                 type="button"
                 aria-label="捏一下大泡泡"
@@ -1142,9 +696,9 @@ function HomePage() {
                 >
                   <span className="contact-bubble-highlight contact-bubble-highlight-large" />
                 </span>
-                {contactBubbleLargeBurstVersion > 0 && (
+                {contactBubbleBurstVersions.large > 0 && (
                   <span
-                    key={contactBubbleLargeBurstVersion}
+                    key={contactBubbleBurstVersions.large}
                     className="contact-bubble-burst contact-bubble-burst-large"
                     aria-hidden="true"
                   >

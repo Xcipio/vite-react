@@ -1,24 +1,24 @@
 import { Link, useParams } from "react-router-dom";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import CommentsSection from "./components/CommentsSection";
-import ThemeToggle from "./components/ThemeToggle";
-import { useTheme } from "./hooks/useTheme";
-import { sendLikeNotification } from "./lib/notifications";
+import CommentsSection from "../components/CommentsSection";
+import ThemeToggle from "../components/ThemeToggle";
+import { useTheme } from "../hooks/useTheme";
+import { sendLikeNotification } from "../lib/notifications";
 import {
   activatePostLike,
   deactivatePostLike,
   fetchPostLikeCount,
   fetchPostLikeState,
-} from "./lib/postLikes";
+} from "../lib/postLikes";
 import {
   fetchPublishedPostBySlug,
   fetchPublishedPosts,
   fetchPublishedPostTranslation,
-} from "./lib/posts";
-import { getPostTags, getTagStyle } from "./lib/tags";
-import { Post } from "./types/post";
+} from "../lib/posts";
+import { getPostTags, getTagStyle } from "../lib/tags";
+import { Post } from "../types/post";
 
-const PostContent = lazy(() => import("./components/PostContent"));
+const PostContent = lazy(() => import("../components/PostContent"));
 const READ_COMPLETE_STORAGE_KEY = "post-read-complete";
 
 function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {

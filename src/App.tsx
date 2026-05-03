@@ -7,7 +7,7 @@ import ArtworkTagPage from "./pages/ArtworkTagPage";
 import GamesPage from "./pages/GamesPage";
 import FriendsPage from "./pages/FriendsPage";
 
-const PostPage = lazy(() => import("./PostPage"));
+const PostPage = lazy(() => import("./pages/PostPage"));
 const ArtPage = lazy(() => import("./pages/ArtPage"));
 const ArtworkDetailPage = lazy(() => import("./pages/ArtworkDetailPage"));
 const FriendArticlePage = lazy(() => import("./pages/FriendArticlePage"));
