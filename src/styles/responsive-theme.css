@@ -69,6 +69,18 @@
     grid-template-columns: 1fr;
   }
 
+  .daily-quote-strip {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+
+  .daily-quote-credit {
+    justify-self: start;
+    text-align: left;
+    white-space: normal;
+  }
+
   .latest-release-tags,
   .random-game-meta-panel,
   .tag-page-featured-meta,
@@ -526,6 +538,7 @@
   }
 
   .latest-release-card,
+  .daily-quote-strip,
   .random-game-card,
   .tag-page-featured-card {
     padding: 24px 22px;
@@ -681,6 +694,34 @@ body[data-theme="light"] .latest-release-card {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.02));
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] .daily-quote-strip {
+  background:
+    linear-gradient(90deg, rgba(170, 112, 58, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.035), rgba(0, 0, 0, 0.015));
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] .hero-daily-quote {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+body[data-theme="light"] .daily-quote-label {
+  color: rgba(5, 7, 13, 0.38);
+  background: rgba(0, 0, 0, 0.025);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .daily-quote-text {
+  color: rgba(5, 7, 13, 0.48);
+}
+
+body[data-theme="light"] .daily-quote-credit {
+  color: rgba(5, 7, 13, 0.34);
 }
 
 body[data-theme="light"] .tag-page-subtitle,

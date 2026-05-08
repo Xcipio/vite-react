@@ -8,10 +8,13 @@ import { useTheme } from "../hooks/useTheme";
 import { pickDailyArtworks } from "../lib/dailyArtworkSelection";
 import { isGamePlayable } from "../lib/games";
 import { getPostTags, getTagStyle, sortTags } from "../lib/tags";
+import type { DailyQuote } from "../types/dailyQuote";
 
 function HomePage() {
   const {
     artworks,
+    dailyQuote,
+    dailyQuotes,
     featuredGame,
     friendArticles,
     games,
@@ -29,6 +32,8 @@ function HomePage() {
     positions: contactBubblePositions,
   } = useContactBubbles();
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDailyQuote, setSelectedDailyQuote] =
+    useState<DailyQuote | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -44,6 +49,17 @@ function HomePage() {
 
   const latestPost = posts[0] ?? null;
   const latestFriendArticle = friendArticles[0] ?? null;
+  const displayedDailyQuote = selectedDailyQuote ?? dailyQuote ?? {
+    quote: "All we need is PLAY",
+    author: "Playxeld",
+    source: null,
+  };
+  const dailyQuoteCredit = [
+    displayedDailyQuote.author,
+    displayedDailyQuote.source,
+  ]
+    .filter(Boolean)
+    .join(", ");
   const pinnedArtworks = pickDailyArtworks(artworks, 3);
   const remainingPosts = latestPost ? posts.slice(1) : posts;
   const filteredPosts = selectedTag
@@ -68,6 +84,21 @@ function HomePage() {
     { length: totalPages },
     (_, index) => index + 1,
   );
+
+  const shuffleDailyQuote = () => {
+    if (dailyQuotes.length === 0) {
+      return;
+    }
+
+    const currentDailyQuoteId = selectedDailyQuote?.id ?? dailyQuote?.id;
+    const nextQuotes = dailyQuotes.filter(
+      (quote) => quote.id !== currentDailyQuoteId,
+    );
+    const quotePool = nextQuotes.length > 0 ? nextQuotes : dailyQuotes;
+    const nextIndex = Math.floor(Math.random() * quotePool.length);
+
+    setSelectedDailyQuote(quotePool[nextIndex]);
+  };
 
   useEffect(() => {
     if (!showGamePopout) {
@@ -152,106 +183,127 @@ function HomePage() {
             <p className="hero-subtitle">
               相比将生活视作一场不得不忍受的消亡，我更愿意将其视为一种充满奇特愉悦的无尽探索，用玩家的心态去发掘其间蕴藏的乐趣
             </p>
+
+            <div className="daily-quote-strip hero-daily-quote" aria-label="Daily quote">
+              <button
+                className="daily-quote-label daily-quote-trigger"
+                onClick={shuffleDailyQuote}
+                type="button"
+                disabled={dailyQuotes.length === 0}
+              >
+                Today’s Quote
+              </button>
+              <blockquote className="daily-quote-text">
+                {displayedDailyQuote.quote}
+              </blockquote>
+              {dailyQuoteCredit && (
+                <p className="daily-quote-credit">{dailyQuoteCredit}</p>
+              )}
+            </div>
           </div>
 
-          <aside className="hero-side">
-            <p className="hero-side-label">Now</p>
-            <h2 className="hero-side-title">
-              <span className="hero-title-gradient">文学迷城</span>
-              <span className="hero-title-rest"> 系列更新中 </span>
-              <span className="hero-title-dots" aria-hidden="true">
-                <span className="hero-title-dot hero-title-dot-one">.</span>
-                <span className="hero-title-dot hero-title-dot-two">.</span>
-                <span className="hero-title-dot hero-title-dot-three">.</span>
-              </span>
-            </h2>
-            <p className="hero-side-text">用「玩」的视角解构万物</p>
-            <p className="hero-side-text">把📚 🎬 🎷 🎴 🏙️ 💡 与日常变成一个个游戏</p>
-            <p className="hero-side-text">
-              ——这里的每篇
-              <span className="play-word hero-side-inline-play" aria-label="play">
-                <span className="p play-letter">p</span>
-                <span className="l play-letter">l</span>
-                <span className="a play-letter">a</span>
-                <span className="y play-letter">y</span>
-              </span>
-              笔记，都附带有几个迷你的游戏指南🎮🤹
-            </p>
-            <p className="hero-side-text">
-              让思考不再只是静态的阅读，而是变成像玩游戏一样可以交互的练习
-            </p>
-
-            <div className="hero-side-card">
-              <div className="hero-side-card-tooltip">
-                <p className="hero-side-card-label hero-side-card-title">
-                  どこでもドア
-                </p>
-                <span className="hero-side-card-tooltip-bubble">任意门</span>
-              </div>
-              <p className="hero-side-card-text">
-                点击标签，查看该专题所有文章👇
+          <aside className="hero-side-stack">
+            <div className="hero-side">
+              <p className="hero-side-label">Now</p>
+              <h2 className="hero-side-title">
+                <span className="hero-title-gradient">文学迷城</span>
+                <span className="hero-title-rest"> 系列更新中 </span>
+                <span className="hero-title-dots" aria-hidden="true">
+                  <span className="hero-title-dot hero-title-dot-one">.</span>
+                  <span className="hero-title-dot hero-title-dot-two">.</span>
+                  <span className="hero-title-dot hero-title-dot-three">.</span>
+                </span>
+              </h2>
+              <p className="hero-side-text">用「玩」的视角解构万物</p>
+              <p className="hero-side-text">把📚 🎬 🎷 🎴 🏙️ 💡 与日常变成一个个游戏</p>
+              <p className="hero-side-text">
+                ——这里的每篇
+                <span className="play-word hero-side-inline-play" aria-label="play">
+                  <span className="p play-letter">p</span>
+                  <span className="l play-letter">l</span>
+                  <span className="a play-letter">a</span>
+                  <span className="y play-letter">y</span>
+                </span>
+                笔记，都附带有几个迷你的游戏指南🎮🤹
               </p>
-              <div className="hero-tag-grid">
-                {portalTags.map((tag) => (
-                  <button
-                    key={tag}
-                    className={`hero-tag-button ${
-                      selectedTag === tag ? "active" : ""
-                    }`}
-                    style={getTagStyle(tag, theme)}
-                    onClick={() => {
-                      navigate(
-                        tag === "涂鸦"
-                          ? `/art/tag/${encodeURIComponent(tag)}`
-                          : tag === "投稿"
-                            ? "/friends"
-                            : `/tag/${encodeURIComponent(tag)}`,
-                      );
-                    }}
-                    type="button"
-                  >
-                    {tag}
-                  </button>
-                ))}
+              <p className="hero-side-text">
+                让思考不再只是静态的阅读，而是变成像玩游戏一样可以交互的练习
+              </p>
 
-                {selectedTag && (
-                  <button
-                    className="hero-tag-button hero-tag-button-clear"
-                    onClick={() => {
-                      setSelectedTag(null);
-                      setCurrentPage(1);
-                      window.location.hash = "posts";
-                    }}
-                    type="button"
-                  >
-                    查看全部
-                  </button>
-                )}
-              </div>
-
-              <div className="hero-lucky-module">
-                <div className="hero-lucky-module-heading-group">
-                  <p className="hero-side-label hero-lucky-module-kicker">
-                    PLAY!
+              <div className="hero-side-card">
+                <div className="hero-side-card-tooltip">
+                  <p className="hero-side-card-label hero-side-card-title">
+                    どこでもドア
                   </p>
-                  <button
-                    className="hero-lucky-module-trigger hero-lucky-module-heading"
-                    onClick={() => setShowGamePopout(true)}
-                    type="button"
-                    disabled={loading || !featuredGame}
-                  >
-                    手气不错
-                  </button>
+                  <span className="hero-side-card-tooltip-bubble">任意门</span>
                 </div>
-                <div className="hero-lucky-module-copy">
-                  <p className="hero-lucky-module-text">
-                    随机抽一个游戏，来玩一下吧！
-                  </p>
+                <p className="hero-side-card-text">
+                  点击标签，查看该专题所有文章👇
+                </p>
+                <div className="hero-tag-grid">
+                  {portalTags.map((tag) => (
+                    <button
+                      key={tag}
+                      className={`hero-tag-button ${
+                        selectedTag === tag ? "active" : ""
+                      }`}
+                      style={getTagStyle(tag, theme)}
+                      onClick={() => {
+                        navigate(
+                          tag === "涂鸦"
+                            ? `/art/tag/${encodeURIComponent(tag)}`
+                            : tag === "投稿"
+                              ? "/friends"
+                              : `/tag/${encodeURIComponent(tag)}`,
+                        );
+                      }}
+                      type="button"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+
+                  {selectedTag && (
+                    <button
+                      className="hero-tag-button hero-tag-button-clear"
+                      onClick={() => {
+                        setSelectedTag(null);
+                        setCurrentPage(1);
+                        window.location.hash = "posts";
+                      }}
+                      type="button"
+                    >
+                      查看全部
+                    </button>
+                  )}
+                </div>
+
+                <div className="hero-lucky-module">
+                  <div className="hero-lucky-module-heading-group">
+                    <p className="hero-side-label hero-lucky-module-kicker">
+                      PLAY!
+                    </p>
+                    <button
+                      className="hero-lucky-module-trigger hero-lucky-module-heading"
+                      onClick={() => setShowGamePopout(true)}
+                      type="button"
+                      disabled={loading || !featuredGame}
+                    >
+                      手气不错
+                    </button>
+                  </div>
+                  <div className="hero-lucky-module-copy">
+                    <p className="hero-lucky-module-text">
+                      随机抽一个游戏，来玩一下吧！
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+
           </aside>
         </div>
+
       </header>
 
       <section className="section latest-release-section">
