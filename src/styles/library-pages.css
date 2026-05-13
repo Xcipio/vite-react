@@ -1009,6 +1009,48 @@
   margin: 0;
 }
 
+.article-topbar-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.article-home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 0px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(245, 247, 251, 0.72);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.article-home-icon {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.article-home-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 247, 251, 0.94);
+}
+
 .tag-page-title {
   margin: 0 0 18px;
   font-size: clamp(52px, 6vw, 86px);
@@ -1317,6 +1359,12 @@
   letter-spacing: -0.04em;
 }
 
+.friends-page-overview-heading h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .friends-page-overview-strip .friends-page-overview-heading h2 {
   font-size: 24px;
 }
@@ -1455,6 +1503,10 @@
   flex-wrap: wrap;
 }
 
+.friend-article-category-row {
+  transform: none;
+}
+
 .friends-column-featured-date,
 .friends-column-compact-meta {
   font-size: 12px;
@@ -1560,19 +1612,44 @@
     rgba(255, 255, 255, 0.01);
 }
 
-.friend-article-category-chip {
-  padding: 0;
-  background: transparent;
-  border: 0;
-  cursor: default;
+.friend-article-category-badge-shell {
+  display: inline-flex;
 }
 
 .friend-article-category-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
-  border-radius: 999px;
+  gap: 9px;
+  padding: 8px 0 8px 11px;
+  border-left: 3px solid rgba(240, 181, 210, 0.72);
+  color: rgba(245, 247, 251, 0.78);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.friends-column-featured-top .friend-article-category-link {
+  justify-content: flex-start;
+}
+
+.friend-article-category-link:hover {
+  color: rgba(245, 247, 251, 0.96);
+  border-color: rgba(240, 181, 210, 0.96);
+  transform: translateX(2px);
+}
+
+.friend-article-category-mark {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #f0b5d2, #8ed8f3);
+  box-shadow: 0 0 18px rgba(240, 181, 210, 0.22);
 }
 
 .friends-category-hero {
@@ -1619,6 +1696,32 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
     rgba(255, 255, 255, 0.01);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.14);
+}
+
+.friend-article-page .post-detail-hero {
+  background:
+    radial-gradient(145% 95% at 50% 8%, rgba(240, 181, 210, 0.03), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.014), rgba(255, 255, 255, 0));
+  border-radius: 28px;
+  margin-bottom: 42px;
+  overflow: hidden;
+}
+
+.friend-article-page .post-detail-meta-row {
+  border-top-color: rgba(255, 255, 255, 0.045);
+}
+
+.friend-article-page .post-detail-date-badge,
+.friend-article-page .friends-author-chip {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.065);
+}
+
+.friend-article-page .friend-article-author-spotlight {
+  border-color: rgba(255, 255, 255, 0.055);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0.008));
+  box-shadow: none;
 }
 
 .friends-author-summary,
@@ -1670,6 +1773,11 @@
   gap: 8px;
 }
 
+.friends-latest-tag-row {
+  margin-top: 18px;
+  margin-bottom: 4px;
+}
+
 .friends-tag-chip {
   cursor: default;
 }
@@ -1708,25 +1816,12 @@
   margin: 0 0 10px;
 }
 
-.friend-article-author-role {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: rgba(245, 247, 251, 0.58);
-}
-
 .friend-article-author-link,
 .friend-article-more-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  max-width: 100%;
   padding: 9px 14px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1742,12 +1837,84 @@
     color 0.18s ease;
 }
 
+.friend-article-author-link {
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
 .friend-article-author-link:hover,
 .friend-article-more-link:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.06);
   color: rgba(245, 247, 251, 0.96);
+}
+
+.friend-article-original-link {
+  margin-top: 94px;
+  text-align: center;
+}
+
+.friend-article-original-link-label {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 251, 0.34);
+}
+
+.friend-article-original-link-url {
+  display: inline-flex;
+  justify-content: center;
+  max-width: 100%;
+  color: rgba(245, 247, 251, 0.46);
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.friend-article-original-link-url:hover {
+  color: rgba(245, 247, 251, 0.94);
+}
+
+.friend-article-actions {
+  margin-top: 28px;
+}
+
+.friend-article-end-links {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.friend-article-end-links-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.friend-article-end-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  color: rgba(245, 247, 251, 0.72);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.friend-article-end-link:hover {
+  color: rgba(245, 247, 251, 0.94);
+}
+
+.friend-article-end-link-url {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .friend-article-more {

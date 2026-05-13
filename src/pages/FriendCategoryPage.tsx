@@ -114,10 +114,11 @@ function FriendCategoryPage() {
           <div className="friends-category-layout">
             <article className="friends-category-featured-card">
               <div className="friends-column-featured-top">
-                <span
-                  className="hero-tag-button friends-tag-chip"
-                  style={getTagStyle(category, theme)}
-                >
+                <span className="friend-article-category-link">
+                  <span
+                    className="friend-article-category-mark"
+                    aria-hidden="true"
+                  />
                   {category}
                 </span>
                 <span className="friends-column-featured-date">

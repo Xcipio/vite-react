@@ -50,7 +50,7 @@ function FriendsPage() {
             <p className="section-label">FRIENDS</p>
             <h1 className="tag-page-title">投稿</h1>
             <p className="tag-page-description">
-              这里收录朋友们投稿到 Playxeld 的文章。
+              这里收录朋友们发布到 Playxeld 的文章。
             </p>
             <p className="tag-page-subtitle">
               当前共公开 {articles.length} 篇投稿文章。
@@ -75,7 +75,13 @@ function FriendsPage() {
                       {meta.englishLabel}
                     </p>
                     <div className="friends-page-overview-heading">
-                      <h2>{meta.title}</h2>
+                      <h2>
+                        <span
+                          className="friend-article-category-mark"
+                          aria-hidden="true"
+                        />
+                        {meta.title}
+                      </h2>
                       <span>{count}</span>
                     </div>
                   </div>
@@ -122,14 +128,13 @@ function FriendsPage() {
                         <div className="friends-column-featured-top">
                           <Link
                             to={getFriendArticleCategoryPath(category)}
-                            className="friends-category-chip-link"
+                            className="friends-category-chip-link friend-article-category-link"
                           >
                             <span
-                              className="hero-tag-button friends-tag-chip"
-                              style={getTagStyle(category, theme)}
-                            >
-                              {category}
-                            </span>
+                              className="friend-article-category-mark"
+                              aria-hidden="true"
+                            />
+                            {category}
                           </Link>
                           <span className="friends-column-featured-date">
                             {new Date(article.published_at).toLocaleDateString()}
@@ -144,6 +149,20 @@ function FriendsPage() {
                           <p className="friends-column-featured-excerpt">
                             {article.excerpt}
                           </p>
+                        )}
+
+                        {article.tags.length > 0 && (
+                          <div className="friends-tag-row friends-latest-tag-row">
+                            {sortTags(article.tags).map((tag) => (
+                              <span
+                                key={`${article.id}-${tag}`}
+                                className="hero-tag-button friends-tag-chip"
+                                style={getTagStyle(tag, theme)}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         )}
 
                         <Link to={`/friends/${article.slug}`} className="post-link">
@@ -174,19 +193,6 @@ function FriendsPage() {
                             {article.author_profile ??
                               "PlayxelD Friends 投稿作者，分享自己的故事、观察和创作。"}
                           </p>
-                          {article.tags.length > 0 && (
-                            <div className="friends-tag-row">
-                              {sortTags(article.tags).map((tag) => (
-                                <span
-                                  key={`${article.id}-${tag}`}
-                                  className="hero-tag-button friends-tag-chip"
-                                  style={getTagStyle(tag, theme)}
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </article>

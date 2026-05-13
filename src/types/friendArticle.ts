@@ -13,6 +13,7 @@ export type FriendArticle = {
   author_homepage_url: string | null;
   author_social_label: string | null;
   author_social_url: string | null;
+  original_url: string | null;
   category: FriendArticleCategory | null;
   tags: string[];
   is_published: boolean;

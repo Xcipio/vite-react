@@ -437,9 +437,25 @@ function PostPage({ language = "zh" }: { language?: "zh" | "en" }) {
 
       <section className="section post-page-section">
         <div className="tag-page-topbar">
-          <p className="tag-page-back">
-            <Link to={isEnglish ? "/en" : "/"}>{uiText.backHome}</Link>
-          </p>
+          <div className="article-topbar-nav">
+            <Link
+              className="article-home-button"
+              to={isEnglish ? "/en" : "/"}
+              aria-label={isEnglish ? "Back to home" : "返回主页"}
+            >
+              <svg
+                aria-hidden="true"
+                className="article-home-icon"
+                viewBox="0 0 24 24"
+              >
+                <path d="M4.5 10.8 12 4.6l7.5 6.2" />
+                <path d="M6.8 9.7v8.5h10.4V9.7" />
+              </svg>
+            </Link>
+            <p className="tag-page-back">
+              <Link to={isEnglish ? "/en" : "/"}>{uiText.backHome}</Link>
+            </p>
+          </div>
           <div className="post-detail-topbar-actions">
             {alternatePost && (
               <Link
